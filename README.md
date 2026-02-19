@@ -1,7 +1,3 @@
-Since we have pivoted the project name to **Santim Sentry** and integrated high-level features like **Fayda ID** and **telebirr** synchronization, your README needs to reflect that "Senior" strategic depth. A basic README says what the app *is*; a Senior README explains why it is *enterprise-ready* for Ethio Telecom.
-
-Here is the updated, high-impact version for your repository.
-
 ---
 
 # 🛡️ Santim Sentry (ሳንቲም ሴንትሪ)
