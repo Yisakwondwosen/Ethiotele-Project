@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import VerifiedSignIn from '../components/VerifiedSignIn';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -25,8 +26,20 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-brand-gray px-4">
             <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
                 <div className="text-center mb-8">
+                    <div className="mb-6 flex justify-center">
+                        <span className="text-2xl tracking-tighter text-brand-dark" style={{ fontFamily: '"Permanent Marker", cursive' }}>SANTIM SENTRY</span>
+                    </div>
                     <h1 className="text-3xl font-bold text-brand-dark mb-2">{t('login')}</h1>
                     <p className="text-gray-400">{t('welcome')}</p>
+                </div>
+
+                <div className="mb-8">
+                    <VerifiedSignIn />
+                    <div className="relative flex py-5 items-center">
+                        <div className="flex-grow border-t border-gray-100"></div>
+                        <span className="flex-shrink-0 mx-4 text-gray-300 text-xs uppercase font-bold">Or Email</span>
+                        <div className="flex-grow border-t border-gray-100"></div>
+                    </div>
                 </div>
 
                 {error && <div className="bg-red-100 text-red-600 p-3 rounded-xl mb-4 text-center text-sm">{error}</div>}

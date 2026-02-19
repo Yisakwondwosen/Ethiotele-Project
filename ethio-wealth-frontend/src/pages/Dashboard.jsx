@@ -21,6 +21,7 @@ import { BsThreeDots } from 'react-icons/bs';
 
 import BottomNav from '../components/BottomNav';
 import AddTransactionModal from '../components/AddTransactionModal';
+import WalletView from '../components/WalletView';
 import { createTransaction, getTransactions, updateTransaction, deleteTransaction } from '../services/api';
 
 // Register ChartJS Components
@@ -324,9 +325,8 @@ const Dashboard = () => {
         <div className="min-h-screen bg-brand-gray font-sans flex flex-col md:flex-row overflow-hidden">
             {/* Sidebar */}
             <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-100 p-6 shadow-xl z-20">
-                <div className="flex items-center space-x-3 mb-10">
-                    <div className="w-10 h-10 bg-brand-purple rounded-xl flex items-center justify-center text-white font-bold text-xl">S</div>
-                    <span className="text-xl font-bold text-brand-dark">Santim Sentry</span>
+                <div className="flex items-center space-x-3 mb-10 pl-2">
+                    <span className="text-2xl tracking-tighter text-brand-dark" style={{ fontFamily: '"Permanent Marker", cursive' }}>SANTIM SENTRY</span>
                 </div>
                 <nav className="flex-1 space-y-2">
                     {['home', 'wallet', 'analytics', 'profile'].map((tab) => (
@@ -340,10 +340,22 @@ const Dashboard = () => {
                         <button onClick={() => changeLanguage('en')} className={`px-2 py-1 rounded ${i18n.language === 'en' ? 'bg-brand-dark text-white' : 'text-gray-400'}`}>EN</button>
                         <button onClick={() => changeLanguage('am')} className={`px-2 py-1 rounded ${i18n.language === 'am' ? 'bg-brand-dark text-white' : 'text-gray-400'}`}>AM</button>
                     </div>
-                    <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl">
-                        <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-10 h-10 rounded-full" />
+                    <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div className="relative">
+                            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-10 h-10 rounded-full" />
+                            {user?.fayda_id && (
+                                <div className="absolute -bottom-1 -right-1 bg-green-500 text-white text-[8px] p-0.5 rounded-full border-2 border-white" title="Verified by National ID">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                    </svg>
+                                </div>
+                            )}
+                        </div>
                         <div>
-                            <h4 className="text-sm font-bold text-brand-dark">{user?.name || "Abraham K."}</h4>
+                            <div className="flex items-center gap-1">
+                                <h4 className="text-sm font-bold text-brand-dark">{user?.name || "Abraham K."}</h4>
+                                {user?.fayda_id && <span className="text-[10px] text-green-600 bg-green-100 px-1 py-0.5 rounded font-mono tracking-tighter">VERIFIED</span>}
+                            </div>
                             <button onClick={logout} className="text-xs text-brand-orange hover:underline">Logout</button>
                         </div>
                     </div>
@@ -379,34 +391,7 @@ const Dashboard = () => {
                     {activeTab === 'analytics' && renderAnalyticsPage()}
                     {/* Explicit Wallet View for Transactions List (Editable) */}
                     {activeTab === 'wallet' && (
-                        <div className="space-y-4 pb-20">
-                            {transactions.map(t => (
-                                <div key={t.id} onClick={() => handleEditClick(t, { stopPropagation: () => { } })} className="group flex justify-between items-center p-4 bg-white rounded-2xl shadow-sm border border-gray-50 cursor-pointer relative hover:shadow-md transition">
-                                    <div className="flex items-center space-x-4">
-                                        <div className={`w-10 h-10 ${t.type === 'income' ? 'bg-green-100 text-green-600' : 'bg-orange-100 text-brand-orange'} rounded-full flex items-center justify-center`}>
-                                            {getIcon(t.icon)}
-                                        </div>
-                                        <div>
-                                            <p className="font-bold text-brand-dark">{t.description}</p>
-                                            <p className="text-xs text-gray-400">{t.category} • {new Date(t.created_at || t.transaction_date).toLocaleDateString()}</p>
-                                        </div>
-                                    </div>
-                                    <span className={`font-bold ${t.type === 'income' ? 'text-green-500' : 'text-brand-dark'}`}>
-                                        {t.type === 'income' ? '+' : '-'} ETB {Number(t.amount).toFixed(2)}
-                                    </span>
-
-                                    {/* Hover Actions */}
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex space-x-2 opacity-0 group-hover:opacity-100 transition bg-white/90 p-1 rounded-lg shadow-sm">
-                                        <button onClick={(e) => handleEditClick(t, e)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-full">
-                                            <FaPen size={12} />
-                                        </button>
-                                        <button onClick={(e) => handleDeleteClick(t.id, e)} className="p-2 text-red-500 hover:bg-red-50 rounded-full">
-                                            <FaTrash size={12} />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                        <WalletView transactions={transactions} onRefresh={fetchTransactions} />
                     )}
                 </div>
             </main>

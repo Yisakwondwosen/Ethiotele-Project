@@ -7,16 +7,34 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
+// Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:5173"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 // Routes (Placeholders for now)
 const authRoutes = require('./routes/authRoutes');
+const faydaRoutes = require('./routes/faydaRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 
+// Auto-run migration
+try {
+    require('../scripts/migrate');
+} catch (e) {
+    console.error("Migration skipped or failed:", e.message);
+}
+
 // Routes
+// Mount Legacy Routes FIRST to prevent Better-Auth from swallowing them
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', faydaRoutes); // Mount Fayda OIDC at root auth path
+app.get('/callback', require('./controllers/faydaController').callback); // Root Callback for Fayda
+app.use('/api/telebirr', require('./routes/telebirrRoutes')); // Mount Telebirr Mock
 app.use('/api/transactions', transactionRoutes);
 
 app.get('/health', (req, res) => {

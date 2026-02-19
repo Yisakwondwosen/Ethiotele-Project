@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: santim_sentry_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-ethio_wealth}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./ethio-wealth-backend/schema.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - santim_network
+
+  backend:
+    build: ./ethio-wealth-backend
+    container_name: santim_sentry_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      DB_NAME: ${DB_NAME:-ethio_wealth}
+      DB_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET:-supersecretkey}
+      FAYDA_API_URL: ${FAYDA_API_URL:-https://api.fayda.et}
+    ports:
+      - "3000:3000"
+    networks:
+      - santim_network
+
+  frontend:
+    build: ./ethio-wealth-frontend
+    container_name: santim_sentry_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - santim_network
+
+volumes:
+  pgdata:
+
+
+networks:
+  santim_network:
+    driver: bridge

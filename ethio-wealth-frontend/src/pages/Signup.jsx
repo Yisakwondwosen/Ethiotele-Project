@@ -25,6 +25,9 @@ const Signup = () => {
         <div className="min-h-screen flex items-center justify-center bg-brand-gray px-4">
             <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
                 <div className="text-center mb-8">
+                    <div className="mb-6 flex justify-center">
+                        <span className="text-2xl tracking-tighter text-brand-dark" style={{ fontFamily: '"Permanent Marker", cursive' }}>SANTIM SENTRY</span>
+                    </div>
                     <h1 className="text-3xl font-bold text-brand-dark mb-2">{t('signup')}</h1>
                     <p className="text-gray-400">Join {t('ethio_wealth')}</p>
                 </div>

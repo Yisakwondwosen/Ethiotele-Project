@@ -7,12 +7,43 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userData = localStorage.getItem('user');
-        if (token && userData) {
-            setUser(JSON.parse(userData));
-        }
-        setLoading(false);
+        const checkAuth = async () => {
+            // Check for token in URL (from Fayda redirect)
+            const params = new URLSearchParams(window.location.search);
+            const urlToken = params.get('token');
+            let token = localStorage.getItem('token');
+
+            if (urlToken) {
+                token = urlToken;
+                localStorage.setItem('token', token);
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (token) {
+                try {
+                    // verify token and get user data
+                    const response = await fetch('http://localhost:3000/api/auth/me', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.ok) {
+                        const userData = await response.json();
+                        setUser(userData);
+                        localStorage.setItem('user', JSON.stringify(userData));
+                    } else {
+                        // Token invalid/expired
+                        logout();
+                    }
+                } catch (err) {
+                    console.error("Auth check failed", err);
+                    logout();
+                }
+            }
+            setLoading(false);
+        };
+
+        checkAuth();
     }, []);
 
     const login = async (email, password) => {
