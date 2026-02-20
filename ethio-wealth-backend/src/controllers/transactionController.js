@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 const { z } = require('zod');
+const { createNotification } = require('./notificationController'); // Import notification helper
+
 
 // Validation Schema using Zod (FR-02, FR-04)
 const transactionSchema = z.object({
@@ -52,6 +54,10 @@ const createTransaction = async (req, res) => {
 
         // We could join here to return full category info, but for now just return the transaction
         // The frontend optimistic update handles the UI immediate feedback
+
+        // Notify user
+        await createNotification(userId, `New transaction of ${amount} ETB added.`, 'success');
+
         res.status(201).json(result.rows[0]);
     } catch (err) {
         if (err instanceof z.ZodError) {

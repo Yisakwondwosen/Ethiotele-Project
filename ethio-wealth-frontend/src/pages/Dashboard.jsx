@@ -22,6 +22,7 @@ import { BsThreeDots } from 'react-icons/bs';
 import BottomNav from '../components/BottomNav';
 import AddTransactionModal from '../components/AddTransactionModal';
 import WalletView from '../components/WalletView';
+import Notifications from '../components/Notifications'; // Import Notifications
 import { createTransaction, getTransactions, updateTransaction, deleteTransaction } from '../services/api';
 
 // Register ChartJS Components
@@ -379,10 +380,7 @@ const Dashboard = () => {
                         <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="hidden md:flex items-center space-x-2 bg-brand-orange text-white px-6 py-2.5 rounded-xl shadow-glow-orange hover:opacity-90 transition">
                             <span className="font-bold">+ {t('add_transaction')}</span>
                         </button>
-                        <button className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-100 shadow-sm">
-                            <FaBell className="text-gray-600" size={16} />
-                            <span className="absolute top-2 right-2.5 w-2 h-2 bg-brand-orange rounded-full border border-white"></span>
-                        </button>
+                        <Notifications />
                     </div>
                 </header>
 

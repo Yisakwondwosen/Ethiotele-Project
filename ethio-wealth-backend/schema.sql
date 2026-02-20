@@ -3,6 +3,7 @@
 
 DROP TABLE IF EXISTS transactions;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS "verification";
 DROP TABLE IF EXISTS "account";
 DROP TABLE IF EXISTS "session";
@@ -70,6 +71,15 @@ CREATE TABLE transactions (
     is_telebirr_sync BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     transaction_date DATE DEFAULT CURRENT_DATE
+);
+
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id text REFERENCES "user"("id") ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    type VARCHAR(20) CHECK (type IN ('info', 'success', 'warning', 'error')) DEFAULT 'info',
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Seed Data

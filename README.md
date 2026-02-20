@@ -51,6 +51,31 @@ Create an `.env` in `ethio-wealth-backend/` and provide your Fayda credentials:
 CLIENT_ID=your_fayda_client_id
 PRIVATE_KEY=your_fayda_private_rsa_key
 
+## 🐳 Docker Setup
+
+To run the entire stack using Docker:
+
+1.  Make sure you have Docker and Docker Compose installed.
+2.  Run the following command in the root directory:
+
+```bash
+docker-compose up --build
+```
+
+This will start the backend, frontend, and database services.
+- Backend: http://localhost:3000
+- Frontend: http://localhost:80
+- Database: localhost:5432
+
+**Note:** If you encounter `Exec format error` or similar issues, try `docker-compose down -v` and rebuild with `docker-compose up --build` to ensure clean node_modules installation inside the container.
+
+### 2. Backend
+```bash
+cd ethio-wealth-backend
+npm install
+# Create a .env file based on .env.example (if provided) or defaults
+npm start
+>>>>>>> 37ff114 (feat: integrate Fayda ID, Telebirr payments, and real-time notifications)
 ```
 
 ### 2. Orchestration (Docker)

@@ -67,16 +67,7 @@ const LandingPage = () => {
                             alt="Dashboard Preview"
                             className="rounded-xl shadow-2xl border-4 border-white transform hover:scale-105 transition duration-500 w-full object-cover"
                         />
-                        {/* Trust Badge Overlay */}
-                        <div className="absolute -bottom-6 -left-6 bg-white p-4 rounded-2xl shadow-xl flex items-center space-x-3 border border-gray-50 animate-bounce-slow">
-                            <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
-                                <FaShieldAlt size={24} />
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Security Level</p>
-                                <p className="font-bold text-brand-dark text-lg">Bank Grade <span className="text-green-500 text-sm">● Active</span></p>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
             </header>
@@ -86,13 +77,12 @@ const LandingPage = () => {
                 <div className="max-w-7xl mx-auto px-6 md:px-12 text-center">
                     <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-8">Trusted Partners in Security & Payments</p>
                     <div className="flex flex-wrap justify-center items-center gap-12 opacity-80 hover:opacity-100 transition-all duration-500">
-                        {/* Fayda ID */}
-                        <div className="flex items-center space-x-3 group cursor-default">
-                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100 group-hover:border-green-200 transition">
-                                <FaUserCheck className="text-green-600 text-2xl" />
-                            </div>
-                            <span className="text-xl font-bold text-gray-700 tracking-tight">Fayda ID</span>
-                        </div>
+                        {/* Fayda ID Card */}
+                        <img
+                            src="/assets/fayda-id-card.png"
+                            alt="Fayda Digital ID"
+                            className="h-20 object-contain hover:scale-105 transition duration-300 shadow-sm rounded-md"
+                        />
 
                         <div className="h-8 w-[1px] bg-gray-300 hidden md:block"></div>
 

@@ -143,7 +143,7 @@ const callback = async (req, res) => {
         });
 
         // 6. Redirect to Frontend Dashboard
-        res.redirect(`http://localhost:5173/dashboard?token=${sessionToken}`);
+        res.redirect(`http://localhost/dashboard?token=${sessionToken}`);
 
     } catch (error) {
         // Detailed Logging
@@ -152,7 +152,7 @@ const callback = async (req, res) => {
         fs.appendFileSync('fayda_error.log', logData);
 
         console.error("Fayda Auth Error:", error);
-        res.redirect(`http://localhost:5173/login?error=fayda_failed&details=${encodeURIComponent(error.message)}`);
+        res.redirect(`http://localhost/login?error=fayda_failed&details=${encodeURIComponent(error.message)}`);
     }
 };
 
