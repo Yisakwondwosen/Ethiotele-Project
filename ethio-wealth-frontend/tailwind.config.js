@@ -20,6 +20,15 @@ export default {
                 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
                 'glow': '0 10px 30px -5px rgba(91, 69, 255, 0.3)', // Purple glow
                 'glow-orange': '0 10px 30px -5px rgba(255, 107, 74, 0.3)', // Orange glow
+            },
+            animation: {
+                'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+                float: {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-20px)' },
+                }
             }
         },
     },

@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(helmet());
 app.use(cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173", "http://localhost"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -21,6 +21,8 @@ app.use(express.json());
 const authRoutes = require('./routes/authRoutes');
 const faydaRoutes = require('./routes/faydaRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const authMiddleware = require('./middleware/authMiddleware');
 
 // Auto-run migration
 try {
@@ -36,6 +38,7 @@ app.use('/api/auth', faydaRoutes); // Mount Fayda OIDC at root auth path
 app.get('/callback', require('./controllers/faydaController').callback); // Root Callback for Fayda
 app.use('/api/telebirr', require('./routes/telebirrRoutes')); // Mount Telebirr Mock
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/notifications', authMiddleware, notificationRoutes);
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'Ethio-Wealth API is running' });

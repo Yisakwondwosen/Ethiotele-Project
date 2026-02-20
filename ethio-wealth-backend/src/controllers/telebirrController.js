@@ -1,5 +1,7 @@
 const pool = require('../config/db');
 const { v4: uuidv4 } = require('uuid');
+const { createNotification } = require('./notificationController');
+
 
 const initiatePayment = async (req, res) => {
     try {
@@ -35,6 +37,8 @@ const initiatePayment = async (req, res) => {
         );
 
         // 4. Mock Success Response
+        await createNotification(userId, `Telebirr Top-Up of ${amount} ETB successful.`, 'success');
+
         res.json({
             success: true,
             message: 'Payment Initiated Successfully',
