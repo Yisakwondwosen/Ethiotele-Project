@@ -7,6 +7,7 @@ const authMiddleware = require('../middleware/authMiddleware');
 router.use(authMiddleware);
 
 router.get('/categories', transactionController.getCategories);
+router.get('/summary', transactionController.getSummary);
 router.get('/', transactionController.getTransactions);
 router.post('/', transactionController.createTransaction);
 router.put('/:id', transactionController.updateTransaction);
