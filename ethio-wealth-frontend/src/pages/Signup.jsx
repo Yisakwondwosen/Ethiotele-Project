@@ -22,60 +22,64 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-brand-gray px-4">
-            <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md">
+        <div className="min-h-screen flex items-center justify-center bg-[#000000] px-4 relative overflow-hidden text-zinc-100">
+            {/* Ambient Background Glows */}
+            <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-brand-purple/20 blur-[120px] rounded-full pointer-events-none"></div>
+            <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+            <div className="bg-[#09090B] p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/10 relative z-10 mt-10 mb-10">
                 <div className="text-center mb-8">
                     <div className="mb-6 flex justify-center">
-                        <span className="text-2xl tracking-tighter text-brand-dark" style={{ fontFamily: '"Permanent Marker", cursive' }}>SANTIM SENTRY</span>
+                        <span className="text-2xl font-extrabold tracking-tight text-white" style={{ fontFamily: '"Outfit", sans-serif' }}>SANTIM SENTRY</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-brand-dark mb-2">{t('signup')}</h1>
-                    <p className="text-gray-400">Join {t('ethio_wealth')}</p>
+                    <h1 className="text-3xl font-bold text-white mb-2">{t('signup')}</h1>
+                    <p className="text-zinc-500">Join {t('ethio_wealth')}</p>
                 </div>
 
-                {error && <div className="bg-red-100 text-red-600 p-3 rounded-xl mb-4 text-center text-sm">{error}</div>}
+                {error && <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-xl mb-4 text-center text-sm">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('name')}</label>
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">{t('name')}</label>
                         <input
                             type="text"
                             required
-                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-purple transition"
+                            className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-white transition"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('email')}</label>
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">{t('email')}</label>
                         <input
                             type="email"
                             required
-                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-purple transition"
+                            className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-white transition"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">{t('password')}</label>
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">{t('password')}</label>
                         <input
                             type="password"
                             required
-                            className="w-full px-4 py-3 rounded-xl bg-gray-50 border border-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-purple transition"
+                            className="w-full px-4 py-3 rounded-xl bg-black border border-white/10 text-white focus:outline-none focus:ring-1 focus:ring-white transition"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
                     <button
                         type="submit"
-                        className="w-full bg-brand-purple text-white font-bold py-3 rounded-xl shadow-glow hover:opacity-90 transition"
+                        className="w-full bg-white text-black font-bold py-3.5 rounded-xl shadow-lg hover:bg-zinc-200 transition-colors"
                     >
                         {t('submit')}
                     </button>
                 </form>
 
                 <div className="mt-6 text-center">
-                    <p className="text-gray-400 text-sm">
-                        {t('have_account')} <Link to="/login" className="text-brand-purple font-bold hover:underline">{t('login')}</Link>
+                    <p className="text-zinc-500 text-sm">
+                        {t('have_account')} <Link to="/login" className="text-white font-bold hover:underline transition">{t('login')}</Link>
                     </p>
                 </div>
             </div>

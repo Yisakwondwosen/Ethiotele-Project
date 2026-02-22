@@ -15,7 +15,7 @@ import {
 import {
     FaBell, FaShoppingBag, FaUtensils, FaBus, FaFileInvoiceDollar,
     FaNotesMedical, FaFilm, FaMoneyBillWave, FaBriefcase, FaCreditCard,
-    FaTrash, FaPen
+    FaTrash, FaPen, FaArrowUp, FaArrowDown, FaExchangeAlt, FaPlus
 } from 'react-icons/fa';
 import { BsThreeDots } from 'react-icons/bs';
 
@@ -58,16 +58,22 @@ const Dashboard = () => {
     const [balance, setBalance] = useState(0);
     const [chartView, setChartView] = useState('trend'); // 'trend' or 'breakdown'
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
     // Chart Data States
     const [trendData, setTrendData] = useState({ labels: [], datasets: [] });
     const [breakdownData, setBreakdownData] = useState({ labels: [], datasets: [] });
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchTransactions();
     }, []);
 
     const fetchTransactions = async () => {
+        setIsLoading(true);
+        setError(null);
         try {
             const data = await getTransactions();
             setTransactions(data);
@@ -75,6 +81,9 @@ const Dashboard = () => {
             setBalance(total);
         } catch (error) {
             console.error("Failed to fetch transactions", error);
+            setError("Unable to load transactions. Please try again.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -146,6 +155,8 @@ const Dashboard = () => {
     }, [transactions]);
 
     const handleAddTransaction = async (newTx) => {
+        setIsLoading(true);
+        setError(null);
         try {
             if (newTx.id) {
                 // Update
@@ -169,7 +180,12 @@ const Dashboard = () => {
             fetchTransactions();
             setEditingTransaction(null);
             setIsModalOpen(false);
-        } catch (error) { console.warn("Backend error", error); }
+        } catch (error) {
+            console.warn("Backend error", error);
+            setError("Failed to save transaction. Please check your network and try again.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const handleEditClick = (t, e) => {
@@ -181,15 +197,19 @@ const Dashboard = () => {
         setIsModalOpen(true);
     };
 
-    const handleDeleteClick = async (id, e) => {
+    const handleDeleteClick = (id, e) => {
         e.stopPropagation();
-        if (window.confirm("Are you sure you want to delete this transaction? This action cannot be undone.")) {
-            try {
-                await deleteTransaction(id);
-                fetchTransactions();
-            } catch (err) {
-                console.error("Delete failed", err);
-            }
+        setDeleteConfirmId(id);
+    };
+
+    const executeDelete = async () => {
+        if (!deleteConfirmId) return;
+        try {
+            await deleteTransaction(deleteConfirmId);
+            fetchTransactions();
+            setDeleteConfirmId(null);
+        } catch (err) {
+            console.error("Delete failed", err);
         }
     };
 
@@ -209,79 +229,157 @@ const Dashboard = () => {
 
     const renderHome = () => (
         <>
-            <div className="relative w-full h-48 bg-brand-dark rounded-3xl p-6 text-white shadow-glow flex flex-col justify-between overflow-hidden">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-brand-purple rounded-full opacity-20 blur-2xl"></div>
-                <div className="absolute bottom-[-20px] left-[-20px] w-32 h-32 bg-brand-orange rounded-full opacity-10 blur-xl"></div>
+            {/* Error Handling Display */}
+            {error && (
+                <div className="mb-6 p-4 bg-red-50 text-red-500 border border-red-200 rounded-xl flex items-center shadow-sm">
+                    <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="font-medium text-sm">{error}</span>
+                </div>
+            )}
+
+            <div className="relative w-full h-52 bg-[#09090B] border border-white/10 rounded-3xl p-6 text-white shadow-2xl flex flex-col justify-between overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-brand-purple rounded-full mix-blend-screen filter blur-[80px] opacity-20"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-48 h-48 bg-brand-orange rounded-full mix-blend-screen filter blur-[80px] opacity-10"></div>
 
                 <div className="relative z-10 flex justify-between items-start">
                     <div>
-                        <p className="text-gray-400 text-sm mb-1">{t('total_balance')}</p>
-                        <h1 className="text-3xl font-bold tracking-tight">ETB {balance.toFixed(2)}</h1>
+                        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-widest mb-1">{t('total_balance')}</p>
+                        <h1 className="text-4xl font-extrabold tracking-tight">ETB {balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h1>
                     </div>
-                    <BsThreeDots className="text-gray-400 text-xl" />
+                    <div className="bg-white/5 p-2 rounded-xl backdrop-blur-sm border border-white/5 hover:bg-white/10 transition cursor-pointer">
+                        <BsThreeDots className="text-zinc-400 text-xl" />
+                    </div>
                 </div>
 
                 <div className="relative z-10 flex justify-between items-end">
-                    <div className="flex space-x-2 text-sm text-gray-400 font-mono tracking-widest">
+                    <div className="flex space-x-2 text-sm text-zinc-500 font-mono tracking-widest">
                         <span>****</span><span>****</span><span>****</span><span>7585</span>
+                    </div>
+                    <div className="w-10 h-6 bg-white/10 backdrop-blur-md rounded border border-white/5 flex items-center justify-center opacity-80">
+                        <div className="w-2 h-2 rounded-full bg-white mr-1"></div>
+                        <div className="w-2 h-2 rounded-full bg-white/50"></div>
                     </div>
                 </div>
             </div>
 
+            {/* Quick Actions (Mobile UI Style) */}
+            <div className="flex justify-between items-center mt-6 px-1 space-x-4">
+                <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="flex-1 flex flex-col items-center justify-center space-y-2 group">
+                    <div className="w-14 h-14 bg-[#09090B] rounded-2xl shadow-sm flex items-center justify-center text-zinc-400 border border-white/10 hover:border-white/30 hover:text-white transition-all">
+                        <FaArrowUp />
+                    </div>
+                    <span className="text-xs font-medium text-zinc-500 group-hover:text-zinc-300">Send</span>
+                </button>
+                <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="flex-1 flex flex-col items-center justify-center space-y-2 group">
+                    <div className="w-14 h-14 bg-[#09090B] rounded-2xl shadow-sm flex items-center justify-center text-zinc-400 border border-white/10 hover:border-white/30 hover:text-white transition-all">
+                        <FaArrowDown />
+                    </div>
+                    <span className="text-xs font-medium text-zinc-500 group-hover:text-zinc-300">Receive</span>
+                </button>
+                <button className="flex-1 flex flex-col items-center justify-center space-y-2 group">
+                    <div className="w-14 h-14 bg-[#09090B] rounded-2xl shadow-sm flex items-center justify-center text-zinc-400 border border-white/10 hover:border-white/30 hover:text-white transition-all">
+                        <FaExchangeAlt />
+                    </div>
+                    <span className="text-xs font-medium text-zinc-500 group-hover:text-zinc-300">Exchange</span>
+                </button>
+                <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="flex-1 flex flex-col items-center justify-center space-y-2 group">
+                    <div className="w-14 h-14 bg-white rounded-2xl shadow-lg flex items-center justify-center text-black hover:scale-105 transition-transform">
+                        <FaPlus />
+                    </div>
+                    <span className="text-xs text-white font-medium">Topup</span>
+                </button>
+            </div>
+
             {/* Analytics Section */}
             <div className="mt-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-brand-dark">{t('analytics')}</h2>
+                <div className="flex justify-between items-center mb-6 px-1">
+                    <h2 className="text-lg font-bold text-white">{t('analytics')}</h2>
                     {/* Toggle View */}
-                    <div className="bg-gray-100 p-1 rounded-lg flex text-xs font-semibold">
-                        <button onClick={() => setChartView('trend')} className={`px-3 py-1.5 rounded-md transition ${chartView === 'trend' ? 'bg-white text-brand-orange shadow-sm' : 'text-gray-400'}`}>Trend</button>
-                        <button onClick={() => setChartView('breakdown')} className={`px-3 py-1.5 rounded-md transition ${chartView === 'breakdown' ? 'bg-white text-brand-orange shadow-sm' : 'text-gray-400'}`}>Breakdown</button>
+                    <div className="bg-[#09090B] border border-white/10 p-1 rounded-lg flex text-xs font-medium">
+                        <button onClick={() => setChartView('trend')} className={`px-3 py-1.5 rounded-md transition ${chartView === 'trend' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>Trend</button>
+                        <button onClick={() => setChartView('breakdown')} className={`px-3 py-1.5 rounded-md transition ${chartView === 'breakdown' ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300'}`}>Breakdown</button>
                     </div>
                 </div>
-                <div className="h-56 w-full bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
+                <div className="h-60 w-full bg-[#09090B] p-5 rounded-3xl border border-white/10">
                     {renderChart()}
                 </div>
             </div>
 
             {/* Transactions Section */}
-            <div className="mt-8">
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold text-brand-dark">{t('transactions')}</h2>
-                    <button onClick={() => setActiveTab('wallet')} className="text-xs font-semibold text-gray-400 hover:text-brand-purple">{t('view_all')}</button>
+            <div className="mt-10">
+                <div className="flex justify-between items-center mb-5 px-1">
+                    <h2 className="text-lg font-bold text-white">{t('transactions')}</h2>
+                    <button onClick={() => setActiveTab('wallet')} className="text-xs font-medium text-zinc-500 hover:text-white transition">{t('view_all')}</button>
                 </div>
 
-                <div className="space-y-4">
-                    {transactions.length === 0 ? (
-                        <p className="text-center text-gray-400 py-4">No transactions yet. Start adding!</p>
+                <div className="space-y-3">
+                    {isLoading ? (
+                        <div className="flex justify-center items-center py-10">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/20 border-t-white"></div>
+                        </div>
+                    ) : transactions.length === 0 ? (
+                        <p className="text-center text-zinc-600 py-4">No transactions yet. Start adding!</p>
                     ) : transactions.slice(0, 5).map((t) => (
-                        <div key={t.id} onClick={() => handleEditClick(t, { stopPropagation: () => { } })} className="group flex justify-between items-center p-4 bg-white border border-gray-50 rounded-2xl shadow-soft hover:shadow-lg transition-shadow cursor-pointer relative">
+                        <div key={t.id} onClick={() => handleEditClick(t, { stopPropagation: () => { } })} className="group flex justify-between items-center p-4 bg-[#09090B] border border-white/5 rounded-2xl hover:border-white/20 transition-all cursor-pointer relative">
                             <div className="flex items-center space-x-4">
-                                <div className={`w-12 h-12 ${t.type === 'income' ? 'bg-green-500' : 'bg-brand-orange'} rounded-xl flex items-center justify-center shadow-md text-white`}>
+                                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-lg ${t.type === 'income' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
                                     {getIcon(t.icon)}
                                 </div>
                                 <div>
-                                    <h4 className="font-bold text-brand-dark text-sm">{t.description || t.name}</h4>
-                                    <p className="text-xs text-gray-400 mt-0.5">{t.category}</p>
+                                    <h4 className="font-bold text-white text-sm">{t.description || t.name}</h4>
+                                    <p className="text-xs text-zinc-500 mt-0.5 font-medium">{t.category}</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <span className={`block font-bold text-sm ${t.type === 'income' ? 'text-green-500' : 'text-brand-dark'}`}>
-                                    {t.type === 'income' ? '+' : '-'} ETB {Number(t.amount).toFixed(2)}
+                                <span className={`block font-bold text-sm tracking-tight ${t.type === 'income' ? 'text-green-400' : 'text-zinc-300'}`}>
+                                    {t.type === 'income' ? '+' : '-'}ETB {Number(t.amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </span>
-                                <span className="text-[10px] text-gray-300">{new Date(t.created_at || t.transaction_date || Date.now()).toLocaleDateString()}</span>
+                                <span className="text-xs text-zinc-600 font-medium">{new Date(t.created_at || t.transaction_date || Date.now()).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                             </div>
 
                             {/* Hover Actions */}
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex space-x-2 opacity-0 group-hover:opacity-100 transition bg-white/90 p-1 rounded-lg shadow-sm">
-                                <button onClick={(e) => handleEditClick(t, e)} className="p-2 text-blue-500 hover:bg-blue-50 rounded-full">
-                                    <FaPen size={12} />
-                                </button>
-                                <button onClick={(e) => handleDeleteClick(t.id, e)} className="p-2 text-red-500 hover:bg-red-50 rounded-full">
-                                    <FaTrash size={12} />
-                                </button>
+                            <div className={`absolute right-4 top-1/2 -translate-y-1/2 flex space-x-2 transition bg-black/80 backdrop-blur-md p-1.5 rounded-lg border border-white/10 ${deleteConfirmId === t.id ? 'opacity-100 z-10' : 'opacity-0 group-hover:opacity-100'}`}>
+                                {deleteConfirmId === t.id ? (
+                                    <div className="flex items-center space-x-1.5 px-1 py-0.5" onClick={(e) => e.stopPropagation()}>
+                                        <span className="text-[10px] font-extrabold text-red-500 mr-2 uppercase tracking-wider">Delete?</span>
+                                        <button type="button" onClick={() => executeDelete()} className="px-3 py-1 text-[11px] font-bold bg-red-500 text-white shadow-[0_0_10px_rgba(239,68,68,0.4)] rounded-md hover:bg-red-600 transition-all active:scale-95">Yes</button>
+                                        <button type="button" onClick={() => setDeleteConfirmId(null)} className="px-3 py-1 text-[11px] font-bold text-zinc-400 hover:text-white hover:bg-white/10 rounded-md transition-all active:scale-95">No</button>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <button type="button" onClick={(e) => handleEditClick(t, e)} className="p-2 text-zinc-400 hover:text-white rounded transition-colors">
+                                            <FaPen size={12} />
+                                        </button>
+                                        <button type="button" onClick={(e) => handleDeleteClick(t.id, e)} className="p-2 text-zinc-400 hover:text-red-400 rounded transition-colors">
+                                            <FaTrash size={12} />
+                                        </button>
+                                    </>
+                                )}
                             </div>
                         </div>
                     ))}
+                </div>
+            </div>
+
+            {/* DotCom Secrets Value Ladder / Epiphany Bridge - Modernized & Subtle */}
+            <div className="mt-10 mb-20 md:mb-4 p-6 bg-[#09090B] border border-white/10 rounded-3xl shadow-2xl text-white relative overflow-hidden group">
+                <div className="absolute top-[-50%] left-[-10%] w-64 h-64 bg-brand-purple rounded-full mix-blend-screen filter blur-[80px] opacity-10 group-hover:opacity-20 transition-opacity duration-700"></div>
+                <div className="relative z-10 flex flex-col md:flex-row items-center justify-between">
+                    <div className="mb-4 md:mb-0 max-w-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></div>
+                            <span className="text-[10px] font-bold tracking-widest uppercase text-brand-orange">Pro Plan</span>
+                        </div>
+                        <h3 className="text-xl font-bold mb-1 text-white">Tired of manual tracking?</h3>
+                        <p className="text-xs text-zinc-400 leading-relaxed max-w-sm">
+                            Unlock bank-level auto sync and save up to 14 hours a month.
+                        </p>
+                    </div>
+                    <button className="w-full md:w-auto flex-shrink-0 bg-white text-black px-6 py-3 rounded-lg font-bold shadow-soft hover:bg-zinc-200 transition-all active:scale-95 text-sm">
+                        Upgrade Now
+                    </button>
                 </div>
             </div>
         </>
@@ -307,15 +405,15 @@ const Dashboard = () => {
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-                <h3 className="font-bold mb-4 text-brand-dark">Top Spending Categories</h3>
+            <div className="bg-[#09090B] p-6 rounded-3xl border border-white/10">
+                <h3 className="font-bold mb-4 text-white">Top Spending Categories</h3>
                 {breakdownData.labels.map((label, i) => (
-                    <div key={label} className="flex justify-between items-center py-3 border-b border-gray-50 last:border-0">
+                    <div key={label} className="flex justify-between items-center py-3 border-b border-white/5 last:border-0">
                         <div className="flex items-center space-x-3">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: breakdownData.datasets[0].backgroundColor[i] }}></div>
-                            <span className="text-sm font-medium text-gray-600">{label}</span>
+                            <span className="text-sm font-medium text-zinc-400">{label}</span>
                         </div>
-                        <span className="font-bold text-brand-dark">ETB {Number(breakdownData.datasets[0].data[i]).toFixed(2)}</span>
+                        <span className="font-bold text-white">ETB {Number(breakdownData.datasets[0].data[i]).toFixed(2)}</span>
                     </div>
                 ))}
             </div>
@@ -323,29 +421,29 @@ const Dashboard = () => {
     );
 
     return (
-        <div className="min-h-screen bg-brand-gray font-sans flex flex-col md:flex-row overflow-hidden">
+        <div className="min-h-screen bg-[#000000] font-sans flex flex-col md:flex-row overflow-hidden text-zinc-100 selection:bg-brand-purple selection:text-white">
             {/* Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 bg-white border-r border-gray-100 p-6 shadow-xl z-20">
+            <aside className="hidden md:flex flex-col w-64 bg-[#09090B] border-r border-white/10 p-6 z-20">
                 <div className="flex items-center space-x-3 mb-10 pl-2">
-                    <span className="text-2xl tracking-tighter text-brand-dark" style={{ fontFamily: '"Permanent Marker", cursive' }}>SANTIM SENTRY</span>
+                    <span className="text-2xl font-extrabold tracking-tight text-white" style={{ fontFamily: '"Outfit", sans-serif' }}>SANTIM SENTRY</span>
                 </div>
                 <nav className="flex-1 space-y-2">
                     {['home', 'wallet', 'analytics', 'profile'].map((tab) => (
-                        <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition font-medium ${activeTab === tab ? 'bg-brand-purple text-white shadow-lg shadow-purple-200' : 'text-gray-400 hover:bg-gray-50'}`}>
+                        <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg transition font-medium text-sm ${activeTab === tab ? 'bg-white/10 text-white' : 'text-zinc-500 hover:text-white hover:bg-white/5'}`}>
                             <span className="capitalize">{t(tab)}</span>
                         </button>
                     ))}
                 </nav>
                 <div className="mt-auto space-y-4">
                     <div className="flex justify-center space-x-2">
-                        <button onClick={() => changeLanguage('en')} className={`px-2 py-1 rounded ${i18n.language === 'en' ? 'bg-brand-dark text-white' : 'text-gray-400'}`}>EN</button>
-                        <button onClick={() => changeLanguage('am')} className={`px-2 py-1 rounded ${i18n.language === 'am' ? 'bg-brand-dark text-white' : 'text-gray-400'}`}>AM</button>
+                        <button onClick={() => changeLanguage('en')} className={`px-2 py-1 flex items-center justify-center rounded text-xs font-bold ${i18n.language === 'en' ? 'bg-white/10 text-white' : 'text-zinc-600 hover:text-white'}`}>EN</button>
+                        <button onClick={() => changeLanguage('am')} className={`px-2 py-1 flex items-center justify-center rounded text-xs font-bold ${i18n.language === 'am' ? 'bg-white/10 text-white' : 'text-zinc-600 hover:text-white'}`}>AM</button>
                     </div>
-                    <div className="flex items-center space-x-3 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                    <div className="flex items-center space-x-3 bg-black border border-white/10 p-3 rounded-xl">
                         <div className="relative">
                             <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-10 h-10 rounded-full" />
                             {user?.fayda_id && (
-                                <div className="absolute -bottom-1 -right-1 bg-green-500 text-white text-[8px] p-0.5 rounded-full border-2 border-white" title="Verified by National ID">
+                                <div className="absolute -bottom-1 -right-1 bg-green-500 text-black text-[8px] p-0.5 rounded-full border border-black" title="Verified by National ID">
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
                                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                     </svg>
@@ -353,38 +451,38 @@ const Dashboard = () => {
                             )}
                         </div>
                         <div>
-                            <div className="flex items-center gap-1">
-                                <h4 className="text-sm font-bold text-brand-dark">{user?.name || "Abraham K."}</h4>
-                                {user?.fayda_id && <span className="text-[10px] text-green-600 bg-green-100 px-1 py-0.5 rounded font-mono tracking-tighter">VERIFIED</span>}
+                            <div className="flex items-center gap-1.5">
+                                <h4 className="text-sm font-bold text-white">{user?.name || "Abraham K."}</h4>
+                                {user?.fayda_id && <span className="text-[9px] text-green-400 bg-green-500/10 px-1 py-0.5 rounded font-mono tracking-tighter">VERIFIED</span>}
                             </div>
-                            <button onClick={logout} className="text-xs text-brand-orange hover:underline">Logout</button>
+                            <button onClick={logout} className="text-xs text-zinc-500 hover:text-white transition">Logout</button>
                         </div>
                     </div>
                 </div>
             </aside>
 
             {/* Mobile Bottom Nav */}
-            <div className="md:hidden">
+            <div className="md:hidden bg-[#09090B] border-t border-white/10 fixed bottom-0 w-full z-50">
                 <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} onFabClick={() => setIsModalOpen(true)} />
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto relative p-6 md:p-10">
+            <main className="flex-1 overflow-y-auto relative p-6 md:p-10 pb-24 md:pb-10">
                 <header className="flex justify-between items-center mb-8 md:mb-12">
                     <div>
-                        <h1 className="text-2xl font-bold text-brand-dark hidden md:block">
+                        <h1 className="text-2xl font-bold text-white hidden md:block" style={{ fontFamily: '"Outfit", sans-serif' }}>
                             {activeTab === 'home' ? t('dashboard') : activeTab === 'analytics' ? 'Analytics' : t('my_expenses')}
                         </h1>
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="hidden md:flex items-center space-x-2 bg-brand-orange text-white px-6 py-2.5 rounded-xl shadow-glow-orange hover:opacity-90 transition">
-                            <span className="font-bold">+ {t('add_transaction')}</span>
+                        <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="hidden md:flex items-center space-x-2 bg-white text-black px-5 py-2 rounded-lg hover:bg-zinc-200 transition">
+                            <span className="font-bold text-sm">+ {t('add_transaction')}</span>
                         </button>
                         <Notifications />
                     </div>
                 </header>
 
-                <div className="max-w-5xl mx-auto">
+                <div className="max-w-4xl mx-auto">
                     {activeTab === 'home' && renderHome()}
                     {activeTab === 'analytics' && renderAnalyticsPage()}
                     {/* Explicit Wallet View for Transactions List (Editable) */}
