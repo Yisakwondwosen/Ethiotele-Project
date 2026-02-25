@@ -29,3 +29,4 @@ test-gemini.js
 build_and_push.sh
 ship-it.sh
 ethio-wealth-backend/#schema.sql#
+PITCH.md
