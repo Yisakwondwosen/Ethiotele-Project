@@ -7,14 +7,6 @@
 
 This repository implements **Santim Sentry**, a high-integrity financial ledger designed as a modular value-added service (VAS) for the **telebirr** ecosystem. It is built to meet the **National Bank of Ethiopia (NBE)** digital payment directives and the **National ID (Fayda)** integration standards.
 
-## 🚀 Key Differentiators (Senior Implementation)
-
-* **Fayda ID Anchored e-KYC**: Implements **OIDC with PKCE** via `better-auth` and the `fayda` provider to anchor financial identities to verified national records.
-* **Financial Integrity**: Utilizes PostgreSQL `NUMERIC(15, 2)` to eliminate floating-point errors and implements a **Service Layer Pattern** for complex financial logic.
-* **Digital Equb Module**: A unique feature allowing for verified, legally traceable informal savings groups—bridging traditional habits with digital banking.
-* **Enterprise Observability**: Production-ready monitoring using **Sentry.io** for real-time error tracking and performance profiling.
-* **Telebirr Interoperability**: Simulated sync module designed to handle telebirr transaction IDs for automated reconciliation.
-
 ## 🛠 Tech Stack
 
 * **Backend**: Node.js (Express), PostgreSQL, Drizzle ORM.
