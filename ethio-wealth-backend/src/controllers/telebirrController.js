@@ -17,32 +17,20 @@ const initiatePayment = async (req, res) => {
         // 1. Simulate API Call Delay
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // 2. Find a valid Income Category (e.g. 'Business' or 'Salary')
-        // We need a category ID because transactions must have one to determine type via join
-        const categoryResult = await pool.query("SELECT id FROM categories WHERE type = 'income' LIMIT 1");
-        const categoryId = categoryResult.rows.length > 0 ? categoryResult.rows[0].id : null;
-
-        if (!categoryId) {
-            // Fallback: Create a 'Telebirr Top-Up' category if none exists? 
-            // Or just error out. For now, assume seed data exists.
-            console.warn("No income category found for Telebirr deposit.");
+        // 4. Update internal wallet_balance (Self-Healing)
+        try {
+            await pool.query('UPDATE "user" SET wallet_balance = COALESCE(wallet_balance, 0) + $1 WHERE id = $2', [amount, userId]);
+        } catch (e) {
+            await pool.query(`ALTER TABLE "user" ADD COLUMN IF NOT EXISTS wallet_balance DECIMAL(12, 2) DEFAULT 0;`);
+            await pool.query('UPDATE "user" SET wallet_balance = COALESCE(wallet_balance, 0) + $1 WHERE id = $2', [amount, userId]);
         }
 
-        // 3. Create "Pending" Transaction
-        // Removed 'type' column as it doesn't exist in transactions table
-        const description = `Telebirr Top-Up (${phoneNumber})`;
-        const transactionResult = await pool.query(
-            'INSERT INTO transactions (user_id, amount, category_id, description, transaction_date, is_telebirr_sync) VALUES ($1, $2, $3, $4, NOW(), true) RETURNING *',
-            [userId, amount, categoryId, description]
-        );
-
-        // 4. Mock Success Response
+        // 5. Mock Success Response
         await createNotification(userId, `Telebirr Top-Up of ${amount} ETB successful.`, 'success');
 
         res.json({
             success: true,
             message: 'Payment Initiated Successfully',
-            transaction: transactionResult.rows[0],
             telebirr_ref: `TB-${uuidv4().substring(0, 8).toUpperCase()}`
         });
 
@@ -57,4 +45,35 @@ const initiatePayment = async (req, res) => {
     }
 };
 
-module.exports = { initiatePayment };
+const payForAi = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const cost = 50.00;
+
+        let userRes;
+        try {
+            userRes = await pool.query('SELECT wallet_balance FROM "user" WHERE id = $1', [userId]);
+        } catch (e) {
+            await pool.query(`ALTER TABLE "user" ADD COLUMN IF NOT EXISTS wallet_balance DECIMAL(12, 2) DEFAULT 0;`);
+            userRes = await pool.query('SELECT wallet_balance FROM "user" WHERE id = $1', [userId]);
+        }
+        if (userRes.rows.length === 0) return res.status(404).json({ error: 'User not found' });
+
+        const currentBalance = parseFloat(userRes.rows[0].wallet_balance || 0);
+        if (currentBalance < cost) {
+            return res.status(400).json({ error: 'Insufficient wallet balance. Please top up via Telebirr.' });
+        }
+
+        // Deduct
+        await pool.query('UPDATE "user" SET wallet_balance = wallet_balance - $1 WHERE id = $2', [cost, userId]);
+
+        await createNotification(userId, `50 ETB deducted for AI Insights Pro Unlock.`, 'info');
+
+        res.json({ success: true, message: 'Payment successful', remainingBalance: currentBalance - cost });
+    } catch (error) {
+        console.error("AI Payment Error:", error);
+        res.status(500).json({ error: 'Failed to process AI payment' });
+    }
+};
+
+module.exports = { initiatePayment, payForAi };

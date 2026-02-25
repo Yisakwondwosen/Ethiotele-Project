@@ -22,7 +22,7 @@ const WalletView = ({ transactions, onRefresh }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:3000/api/telebirr/pay', {
+            const res = await fetch('https://yisehak.duckdns.org/api/telebirr/pay', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

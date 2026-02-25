@@ -7,7 +7,7 @@ const FAYDA_CONFIG = {
     authorization_endpoint: "https://esignet.ida.fayda.et/authorize",
     token_endpoint: "https://esignet.ida.fayda.et/v1/esignet/oauth/v2/token",
     userinfo_endpoint: "https://esignet.ida.fayda.et/v1/esignet/oidc/userinfo",
-    client_id: process.env.CLIENT_ID,
+    client_id: process.env.CLIENT_ID || process.env.FAYDA_CLIENT_ID,
     // Callback must match what is registered in Fayda Dashboard
     redirect_uri: 'http://localhost:3000/callback',
     scope: 'openid profile email'
@@ -50,7 +50,8 @@ const login = (req, res) => {
         redirect_uri: FAYDA_CONFIG.redirect_uri,
         scope: FAYDA_CONFIG.scope,
         state: crypto.randomUUID(), // Should verify state in callback for security
-        nonce: crypto.randomUUID()
+        nonce: crypto.randomUUID(),
+        ui_locales: 'eng' // Fixes the DOMTokenList theme-config.js bug on Fayda's side
     });
 
     const url = `${FAYDA_CONFIG.authorization_endpoint}?${params.toString()}`;
@@ -143,7 +144,7 @@ const callback = async (req, res) => {
         });
 
         // 6. Redirect to Frontend Dashboard
-        res.redirect(`http://localhost/dashboard?token=${sessionToken}`);
+        res.redirect(`https://yisehak.duckdns.org/dashboard?token=${sessionToken}`);
 
     } catch (error) {
         // Detailed Logging
@@ -152,7 +153,7 @@ const callback = async (req, res) => {
         fs.appendFileSync('fayda_error.log', logData);
 
         console.error("Fayda Auth Error:", error);
-        res.redirect(`http://localhost/login?error=fayda_failed&details=${encodeURIComponent(error.message)}`);
+        res.redirect(`https://yisehak.duckdns.org/login?error=fayda_failed&details=${encodeURIComponent(error.message)}`);
     }
 };
 

@@ -24,3 +24,8 @@ build/
 .vscode/
 .idea/
 .DS_Store
+test_gemini*.py
+test-gemini.js
+build_and_push.sh
+ship-it.sh
+ethio-wealth-backend/#schema.sql#

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = 'https://yisehak.duckdns.org/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -12,8 +12,12 @@ const api = axios.create({
 // Interceptor to add auth token
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
+    const guestId = localStorage.getItem('guestId');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+    } else if (guestId) {
+        // Fallback for MVP No-Auth requirement
+        config.headers['x-guest-id'] = guestId;
     }
     return config;
 }, (error) => {
@@ -25,6 +29,16 @@ export const login = async (email, password) => {
     return response.data;
 };
 
+export const updateUserProfile = async (userData) => {
+    const response = await api.put('/auth/me', userData);
+    return response.data;
+};
+
+export const deleteUserProfile = async () => {
+    const response = await api.delete('/auth/me');
+    return response.data;
+};
+
 export const getTransactions = async () => {
     const response = await api.get('/transactions');
     return response.data;
@@ -32,6 +46,11 @@ export const getTransactions = async () => {
 
 export const getCategories = async () => {
     const response = await api.get('/transactions/categories');
+    return response.data;
+};
+
+export const getTransactionSummary = async () => {
+    const response = await api.get('/transactions/summary');
     return response.data;
 };
 
@@ -68,6 +87,11 @@ export const markNotificationRead = async (id) => {
 
 export const markAllNotificationsRead = async () => {
     const response = await api.put('/notifications/read-all');
+    return response.data;
+};
+
+export const payForAiInsights = async () => {
+    const response = await api.post('/telebirr/ai/pay');
     return response.data;
 };
 

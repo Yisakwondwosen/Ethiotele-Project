@@ -6,7 +6,7 @@ const VerifiedSignIn = () => {
     const loginWithFayda = () => {
         setLoading(true);
         // Redirect to Backend to initiate OIDC Flow
-        window.location.href = 'http://localhost:3000/api/auth/fayda/login';
+        window.location.href = 'https://yisehak.duckdns.org/api/auth/fayda/login';
     };
 
     return (

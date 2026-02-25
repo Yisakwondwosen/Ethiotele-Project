@@ -1,6 +1,10 @@
+.git
 node_modules
-npm-debug.log
-.DS_Store
 .env
+.env.*
+*.log
 dist
-coverage
+build
+docker-compose*
+tests
+.DS_Store

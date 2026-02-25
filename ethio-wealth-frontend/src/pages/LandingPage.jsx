@@ -56,7 +56,7 @@ const LandingPage = () => {
 
                 <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tighter" style={{ fontFamily: '"Outfit", sans-serif' }}>
                     The most comprehensive <br className="hidden md:block" />
-                    personal finance tracker.
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#F97316]">AI-powered</span> finance tracker.
                 </h1>
 
                 <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
@@ -158,9 +158,9 @@ const LandingPage = () => {
 
                         {/* Small Bento Card */}
                         <div className="bg-[#09090B] border border-white/10 rounded-3xl p-8 relative overflow-hidden group hover:border-white/20 transition-colors">
-                            <FaCoins className="text-3xl text-zinc-300 mb-6" />
-                            <h3 className="text-xl font-bold text-white mb-3">Multi-Currency</h3>
-                            <p className="text-zinc-400 text-sm">Track in ETB, USD, or any currency you need. Exchange rates auto-updated.</p>
+                            <FaCheckCircle className="text-3xl text-zinc-300 mb-6" />
+                            <h3 className="text-xl font-bold text-white mb-3">Telebirr Integrated</h3>
+                            <p className="text-zinc-400 text-sm">Automated reconciliation module designed to instantly sync and verify your telebirr transactions.</p>
                         </div>
 
                         {/* Large Bento Card with Code Snippet */}

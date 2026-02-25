@@ -1,6 +1,9 @@
+.git
 node_modules
-npm-debug.log
-.DS_Store
 .env
-dist
+.env.*
+*.log
+docker-compose*
+.DS_Store
 coverage
+fayda_error.log

@@ -146,14 +146,51 @@ const getSummary = async (req, res) => {
             [userId]
         );
 
+        // 3. Get 6 Monthly Trends
+        const trendsResult = await pool.query(
+            `WITH months AS (
+                SELECT date_trunc('month', current_date - interval '1 month' * i) AS month_start
+                FROM generate_series(0, 5) AS i
+             )
+             SELECT 
+                to_char(m.month_start, 'Mon') as month_label,
+                COALESCE(SUM(CASE WHEN c.type = 'income' THEN t.amount ELSE 0 END), 0) as income_total,
+                COALESCE(SUM(CASE WHEN c.type = 'expense' THEN t.amount ELSE 0 END), 0) as expense_total
+             FROM months m
+             LEFT JOIN transactions t ON date_trunc('month', t.transaction_date) = m.month_start AND t.user_id = $1
+             LEFT JOIN categories c ON t.category_id = c.id
+             GROUP BY m.month_start, month_label
+             ORDER BY m.month_start ASC`,
+            [userId]
+        );
+
+        // 4. Get User Wallet Balance (Self-Healing Migration)
+        let walletBalance = 0;
+        try {
+            const userResult = await pool.query(
+                `SELECT wallet_balance FROM "user" WHERE id = $1`,
+                [userId]
+            );
+            walletBalance = userResult.rows.length > 0 ? parseFloat(userResult.rows[0].wallet_balance || 0) : 0;
+        } catch (schemaErr) {
+            console.warn("Auto-healing missing wallet_balance column...");
+            await pool.query(`ALTER TABLE "user" ADD COLUMN IF NOT EXISTS wallet_balance DECIMAL(12, 2) DEFAULT 0;`);
+        }
+
         res.json({
             totalIncome,
             totalExpense,
             currentBalance,
+            walletBalance,
             categorization: categoryResult.rows.map(row => ({
                 category: row.category,
                 type: row.type,
                 total: parseFloat(row.total)
+            })),
+            monthlyTrends: trendsResult.rows.map(row => ({
+                month: row.month_label,
+                income: parseFloat(row.income_total),
+                expense: parseFloat(row.expense_total)
             }))
         });
 

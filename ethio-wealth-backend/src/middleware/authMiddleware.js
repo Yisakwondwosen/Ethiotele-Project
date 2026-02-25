@@ -5,8 +5,19 @@ const authMiddleware = async (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
+    // MVP No-Auth Profile Support
+    const guestId = req.headers['x-guest-id'];
+    if (guestId) {
+        const userCheck = await pool.query('SELECT id FROM "user" WHERE id = $1', [guestId]);
+        if (userCheck.rows.length === 0) {
+            return res.status(401).json({ error: 'Guest user no longer exists.' });
+        }
+        req.user = { userId: guestId, isGuest: true };
+        return next();
+    }
+
     if (!token) {
-        return res.status(401).json({ error: 'Access denied. No token provided.' });
+        return res.status(401).json({ error: 'Access denied. No token or guest ID provided.' });
     }
 
     try {

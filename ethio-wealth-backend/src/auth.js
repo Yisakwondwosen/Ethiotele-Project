@@ -72,7 +72,7 @@ try {
     faydaPlugin = fayda({
         clientId: process.env.CLIENT_ID,
         privateKey: cleanKey,
-        redirectUrl: 'http://localhost:3000/api/auth/callback/fayda'
+        redirectUrl: 'http://localhost:3000/callback'
     });
     console.log("Fayda Plugin Initialized Successfully");
 } catch (e) {

@@ -20,10 +20,13 @@ export const AuthProvider = ({ children }) => {
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
+            const guestId = localStorage.getItem('guestId');
+            const guestUser = localStorage.getItem('guestUser');
+
             if (token) {
                 try {
                     // verify token and get user data
-                    const response = await fetch('http://localhost:3000/api/auth/me', {
+                    const response = await fetch('https://yisehak.duckdns.org/api/auth/me', {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
 
@@ -39,6 +42,8 @@ export const AuthProvider = ({ children }) => {
                     console.error("Auth check failed", err);
                     logout();
                 }
+            } else if (guestId && guestUser) {
+                setUser(JSON.parse(guestUser));
             }
             setLoading(false);
         };
@@ -48,7 +53,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch('http://localhost:3000/api/auth/login', {
+            const response = await fetch('https://yisehak.duckdns.org/api/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
@@ -65,14 +70,35 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const guestLogin = async (username) => {
+        try {
+            const response = await fetch('https://yisehak.duckdns.org/api/profile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username }),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error);
+
+            localStorage.setItem('guestId', data.id);
+            localStorage.setItem('guestUser', JSON.stringify(data));
+            setUser(data);
+            return data;
+        } catch (error) {
+            throw error;
+        }
+    };
+
     const logout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('guestId');
+        localStorage.removeItem('guestUser');
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider value={{ user, login, guestLogin, logout, loading }}>
             {!loading && children}
         </AuthContext.Provider>
     );

@@ -1,5 +1,5 @@
 const pool = require('../config/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { z } = require('zod');
 
@@ -104,6 +104,65 @@ const getMe = async (req, res) => {
     }
 };
 
+const updateSchema = z.object({
+    name: z.string().min(2).optional(),
+    email: z.string().email().optional(),
+    password: z.string().min(6).optional()
+});
+
+const updateMe = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const { name, email, password } = updateSchema.parse(req.body);
+
+        // Fetch current user
+        const result = await pool.query('SELECT * FROM "user" WHERE id = $1', [userId]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const currentUser = result.rows[0];
+
+        // Update fields if provided
+        const updatedName = name || currentUser.name;
+        const updatedEmail = email || currentUser.email;
+        let updatedPassword = currentUser.password;
+
+        if (password) {
+            updatedPassword = await bcrypt.hash(password, 10);
+        }
+
+        const updateQuery = await pool.query(
+            'UPDATE "user" SET name = $1, email = $2, password = $3 WHERE id = $4 RETURNING id, name, email, fayda_id, role, "createdAt"',
+            [updatedName, updatedEmail, updatedPassword, userId]
+        );
+
+        res.json(updateQuery.rows[0]);
+    } catch (error) {
+        if (error instanceof z.ZodError) {
+            return res.status(400).json({ error: error.errors });
+        }
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+const deleteMe = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        // The foreign key ON DELETE CASCADE will handle transactions and notifications
+        await pool.query('DELETE FROM "user" WHERE id = $1', [userId]);
+
+        res.json({ message: 'User deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
 exports.register = register;
 exports.login = login;
 exports.getMe = getMe;
+exports.updateMe = updateMe;
+exports.deleteMe = deleteMe;

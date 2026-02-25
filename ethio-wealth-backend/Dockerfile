@@ -1,16 +1,26 @@
-FROM node:18-alpine
-
+# Stage 1: Build
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-# Install dependencies (cache optimized)
 COPY package*.json ./
+RUN rm -f package-lock.json
 RUN npm install
-
-# Copy source code
 COPY . .
 
-# Expose API port
-EXPOSE 3000
+# Stage 2: Production Runtime
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
 
-# Start Application
-CMD ["npm", "start"]
+# Security: Run as non-root user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
+
+# Only copy production code and dependencies (keeps image size tiny)
+COPY --from=builder --chown=appuser:appgroup /app/package*.json ./
+COPY --from=builder --chown=appuser:appgroup /app/node_modules ./node_modules
+COPY --from=builder --chown=appuser:appgroup /app/src ./src
+COPY --from=builder --chown=appuser:appgroup /app/scripts ./scripts
+COPY --from=builder --chown=appuser:appgroup /app/schema.sql ./schema.sql
+
+EXPOSE 3015 
+CMD ["node", "src/app.js"]

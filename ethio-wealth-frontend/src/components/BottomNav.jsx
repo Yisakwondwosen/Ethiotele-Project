@@ -3,7 +3,7 @@ import { FaHome, FaWallet, FaChartPie, FaUser, FaPlus } from 'react-icons/fa';
 
 const BottomNav = ({ activeTab, setActiveTab, onFabClick }) => {
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-white shadow-2xl rounded-t-3xl border-t border-gray-50 px-8 py-3 pb-8 flex justify-between items-center z-50">
+        <div className="fixed bottom-0 left-0 right-0 bg-black/60 shadow-2xl border-t border-[#222] backdrop-blur-[12px] px-8 py-3 pb-8 flex justify-between items-center z-50">
             {/* Home */}
             <button
                 onClick={() => setActiveTab('home')}
