@@ -49,7 +49,7 @@ export default function AIRecommendations({ summaryData, onPaymentSuccess }) {
 
             const prompt = `You are a highly analytical, strict financial AI. Analyze this user's financial summary: ${dataString}. Provide exactly 3 short, actionable, and brutal financial recommendations to improve their wealth. ${langInstruction} Your response MUST be a raw JSON array of exactly 3 strings. Example format: ["string1", "string2", "string3"]. Do NOT include markdown backticks or the word 'json'. Just return the array.`;
 
-            const apiKey = "***REMOVED***";
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
             const response = await axios.post(
                 `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
                 {
