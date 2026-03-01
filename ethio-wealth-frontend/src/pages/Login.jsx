@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import VerifiedSignIn from '../components/VerifiedSignIn';
 import { motion, AnimatePresence } from 'framer-motion';
+import SantimSentryLogo from '../components/SantimSentryLogo';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -70,8 +71,10 @@ const Login = () => {
             >
                 {/* Header */}
                 <div className="text-center mb-10">
-                    <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
-                        <div className="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center mx-auto mb-6 text-xl font-bold tracking-tighter" style={{ fontFamily: '"Outfit", sans-serif' }}>SS</div>
+                    <Link to="/" className="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
+                        <div className="mb-5">
+                            <SantimSentryLogo variant="icon" height={52} color="white" />
+                        </div>
                     </Link>
                     <h1 className="text-[28px] font-semibold tracking-tight text-white mb-2 leading-tight">Sign in to Santim</h1>
                     <p className="text-[#86868B] text-[15px]">Welcome back. Please enter your details.</p>
@@ -101,15 +104,37 @@ const Login = () => {
                         </motion.div>
                     ) : (
                         <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                            {/* Verified Sign In */}
-                            <div className="mb-6">
-                                <VerifiedSignIn />
-                                <div className="relative flex py-6 items-center">
-                                    <div className="flex-grow border-t border-[#333336]"></div>
-                                    <span className="flex-shrink-0 mx-4 text-[#86868B] text-[13px] font-medium">or continue with</span>
-                                    <div className="flex-grow border-t border-[#333336]"></div>
-                                </div>
+                            {/* Mode Toggle (Value Ladder: Free Tier) */}
+                            <div className="flex bg-[#1C1C1E] p-1 rounded-xl border border-[#333336] mb-6">
+                                <button
+                                    type="button"
+                                    onClick={() => setIsGuestMode(false)}
+                                    className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${!isGuestMode ? 'bg-white text-black shadow-sm' : 'text-[#86868B] hover:text-white'}`}
+                                >
+                                    Standard Login
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsGuestMode(true)}
+                                    className={`flex-1 py-2 rounded-lg text-[13px] font-medium transition-all duration-200 ${isGuestMode ? 'bg-white text-black shadow-sm' : 'text-[#86868B] hover:text-white'}`}
+                                >
+                                    Instant Access
+                                </button>
                             </div>
+
+                            {/* Verified Sign In (Hidden in Guest Mode) */}
+                            {!isGuestMode && (
+                                <AnimatePresence>
+                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-6 overflow-hidden">
+                                        <VerifiedSignIn />
+                                        <div className="relative flex py-6 items-center">
+                                            <div className="flex-grow border-t border-[#333336]"></div>
+                                            <span className="flex-shrink-0 mx-4 text-[#86868B] text-[13px] font-medium">or continue with</span>
+                                            <div className="flex-grow border-t border-[#333336]"></div>
+                                        </div>
+                                    </motion.div>
+                                </AnimatePresence>
+                            )}
 
                             {/* Inline Error */}
                             <AnimatePresence>
@@ -126,23 +151,29 @@ const Login = () => {
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 {isGuestMode ? (
-                                    <div>
-                                        <label className="block text-[13px] text-[#86868B] mb-2 font-medium">Username</label>
-                                        <input
-                                            type="text"
-                                            className="w-full px-4 py-3.5 bg-[#1C1C1E] border border-[#333336] rounded-xl text-white placeholder-[#86868B] focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition-all text-[15px]"
-                                            value={username}
-                                            onChange={(e) => {
-                                                setUsername(e.target.value);
-                                                if (errors.username) setErrors({ ...errors, username: null });
-                                            }}
-                                            placeholder="anon_user"
-                                        />
-                                        {errors.username && <p className="text-red-500 text-[12px] mt-1.5">{errors.username}</p>}
-                                    </div>
+                                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                                        <div className="mb-4">
+                                            <label className="block text-[13px] text-[#86868B] mb-2 font-medium">Create a Username</label>
+                                            <input
+                                                type="text"
+                                                className="w-full px-4 py-3.5 bg-[#1C1C1E] border border-[#333336] rounded-xl text-white placeholder-[#86868B] focus:outline-none focus:ring-1 focus:ring-white focus:border-white transition-all text-[15px]"
+                                                value={username}
+                                                onChange={(e) => {
+                                                    setUsername(e.target.value);
+                                                    if (errors.username) setErrors({ ...errors, username: null });
+                                                }}
+                                                placeholder="e.g., Satoshi"
+                                            />
+                                            {errors.username && <p className="text-red-500 text-[12px] mt-1.5">{errors.username}</p>}
+                                        </div>
+                                        <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[13px] flex items-start gap-3">
+                                            <svg className="w-5 h-5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            <p className="leading-relaxed"><strong>No email required.</strong> We will generate a secure anonymous vault anchored to this username immediately. (Epiphany Bridge)</p>
+                                        </div>
+                                    </motion.div>
                                 ) : (
-                                    <>
-                                        <div>
+                                    <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
+                                        <div className="mb-4">
                                             <label className="block text-[13px] text-[#86868B] mb-2 font-medium">Email</label>
                                             <input
                                                 type="email"
@@ -173,7 +204,7 @@ const Login = () => {
                                             />
                                             {errors.password && <p className="text-red-500 text-[12px] mt-1.5">{errors.password}</p>}
                                         </div>
-                                    </>
+                                    </motion.div>
                                 )}
 
                                 <div className="pt-4">
@@ -181,7 +212,7 @@ const Login = () => {
                                         type="submit"
                                         className="w-full bg-white text-black font-semibold py-3.5 rounded-xl hover:bg-zinc-200 hover:scale-[0.98] transition-all text-[15px] flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(255,255,255,0.15)] hover:shadow-[0_6px_20px_rgba(255,255,255,0.23)]"
                                     >
-                                        {isGuestMode ? 'Access as Guest' : 'Sign In'}
+                                        {isGuestMode ? 'Enter Vault Instantly' : 'Sign In'}
                                         <svg className="w-4 h-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                                     </button>
                                 </div>
@@ -189,16 +220,6 @@ const Login = () => {
 
                             {/* Footer */}
                             <div className="mt-8 pt-6 border-t border-[#333336] text-center space-y-4">
-                                <button
-                                    onClick={() => {
-                                        setIsGuestMode(!isGuestMode);
-                                        setErrors({});
-                                        setGlobalError('');
-                                    }}
-                                    className="text-[#86868B] text-[13px] hover:text-white transition-colors block w-full"
-                                >
-                                    {isGuestMode ? 'Switch to Standard Login' : 'Login Anonymously (Username Only)'}
-                                </button>
 
                                 <div className="text-[13px] text-[#86868B]">
                                     Don't have an account? <Link to="/signup" className="text-white font-medium hover:underline">Sign up</Link>

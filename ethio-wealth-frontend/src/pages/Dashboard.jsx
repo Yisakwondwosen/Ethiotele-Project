@@ -15,14 +15,15 @@ import {
 import {
     FaBell, FaShoppingBag, FaUtensils, FaBus, FaFileInvoiceDollar,
     FaNotesMedical, FaFilm, FaMoneyBillWave, FaBriefcase, FaCreditCard,
-    FaTrash, FaPen, FaArrowUp, FaArrowDown, FaExchangeAlt, FaPlus, FaUser
+    FaTrash, FaPen, FaArrowUp, FaArrowDown, FaExchangeAlt, FaPlus, FaUser, FaSearch, FaWallet, FaCheckCircle
 } from 'react-icons/fa';
 import { BsThreeDots } from 'react-icons/bs';
+import { motion, AnimatePresence } from 'framer-motion';
 
 import BottomNav from '../components/BottomNav';
 import AddTransactionModal from '../components/AddTransactionModal';
 import WalletView from '../components/WalletView';
-import Notifications from '../components/Notifications'; // Import Notifications
+import Notifications from '../components/Notifications';
 import DashboardHeader from '../components/Dashboard/DashboardHeader';
 import QuickActions from '../components/Dashboard/QuickActions';
 import AnalyticsPreview from '../components/Dashboard/AnalyticsPreview';
@@ -51,6 +52,17 @@ const IconMap = {
     FaMoneyBillWave: <FaMoneyBillWave />,
     FaBriefcase: <FaBriefcase />,
     FaCreditCard: <FaCreditCard />
+};
+
+// Framer Motion Variants
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
+};
+
+const fadeUpBlur = {
+    hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
 };
 
 const Dashboard = () => {
@@ -99,13 +111,13 @@ const Dashboard = () => {
                         {
                             label: 'Income',
                             data: summaryData.monthlyTrends.map(t => t.income),
-                            backgroundColor: '#10B981', // Green
+                            backgroundColor: '#FFFFFF', // Clean White
                             borderRadius: 6,
                         },
                         {
                             label: 'Expense',
                             data: summaryData.monthlyTrends.map(t => t.expense),
-                            backgroundColor: '#F97316', // Orange
+                            backgroundColor: '#3F3F46', // Muted Zinc-700
                             borderRadius: 6,
                         }
                     ]
@@ -120,7 +132,7 @@ const Dashboard = () => {
                     labels: sortedCats.map(c => c.category),
                     datasets: [{
                         data: sortedCats.map(c => c.total),
-                        backgroundColor: ['#F97316', '#8B5CF6', '#EC4899', '#3B82F6', '#10B981'],
+                        backgroundColor: ['#FFFFFF', '#D4D4D8', '#A1A1AA', '#71717A', '#3F3F46'], // Monochrome Gradient
                         borderWidth: 0,
                     }]
                 });
@@ -145,7 +157,8 @@ const Dashboard = () => {
                     description: newTx.description,
                     categoryId: newTx.categoryId,
                     isTelebirr: false,
-                    type: newTx.type
+                    type: newTx.type,
+                    date: newTx.date
                 });
             } else {
                 // Create
@@ -154,7 +167,8 @@ const Dashboard = () => {
                     description: newTx.description,
                     categoryId: newTx.categoryId,
                     isTelebirr: false,
-                    type: newTx.type
+                    type: newTx.type,
+                    date: newTx.date
                 });
             }
             fetchTransactions();
@@ -247,46 +261,61 @@ const Dashboard = () => {
         const trendString = balance >= 0 ? '+12.4%' : '-2.1%'; // Mock for the design snippet
 
         return (
-            <>
+            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="w-full max-w-7xl mx-auto space-y-8">
                 {/* Error Handling Display */}
-                {error && (
-                    <div className="mb-6 p-4 bg-red-950 border border-red-500/30 text-red-500 rounded-[8px] flex items-center shadow-sm">
-                        <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span className="font-mono text-sm">{error}</span>
-                    </div>
-                )}
+                <AnimatePresence>
+                    {error && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mb-6 p-4 bg-red-950/50 border border-red-500/30 text-red-500 rounded-[12px] flex items-center shadow-sm backdrop-blur-sm">
+                            <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span className="font-mono text-sm">{error}</span>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
                 {/* Dashboard Global Header */}
-                <DashboardHeader
-                    balance={balance}
-                    walletBalance={summaryRawData?.walletBalance || 0}
-                    trend={trendString}
-                    isPrivacyVisible={isPrivacyVisible}
-                    onTogglePrivacy={() => setIsPrivacyVisible(!isPrivacyVisible)}
-                    t={t}
-                />
+                <motion.div variants={fadeUpBlur} className="bg-[#09090B] border border-white/5 rounded-3xl overflow-hidden relative shadow-lg">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-brand-purple/5 rounded-full blur-[80px] pointer-events-none"></div>
+                    <DashboardHeader
+                        balance={balance}
+                        walletBalance={summaryRawData?.walletBalance || 0}
+                        trend={trendString}
+                        isPrivacyVisible={isPrivacyVisible}
+                        onTogglePrivacy={() => setIsPrivacyVisible(!isPrivacyVisible)}
+                        t={t}
+                    />
+                </motion.div>
 
-                {/* Quick Actions */}
-                <QuickActions
-                    onTopup={() => { setEditingTransaction(null); setIsModalOpen(true); }}
-                />
+                {/* Middle Grid: Quick Actions & Stats */}
+                <motion.div variants={fadeUpBlur} className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div className="col-span-1 lg:col-span-1">
+                        {/* Quick Actions */}
+                        <QuickActions
+                            onTopup={() => { setEditingTransaction(null); setIsModalOpen(true); }}
+                        />
+                    </div>
+                    <div className="col-span-1 lg:col-span-2">
+                        {/* Analytics Section Preview */}
+                        <div className="h-full">
+                            <AnalyticsPreview
+                                chartView={chartView}
+                                setChartView={setChartView}
+                                trendData={trendData}
+                                breakdownData={breakdownData}
+                                t={t}
+                            />
+                        </div>
+                    </div>
+                </motion.div>
 
                 {/* Gemini AI Recommendations Oracle */}
-                <AIRecommendations summaryData={summaryRawData} onPaymentSuccess={fetchTransactions} />
-
-                {/* Analytics Section Preview */}
-                <AnalyticsPreview
-                    chartView={chartView}
-                    setChartView={setChartView}
-                    trendData={trendData}
-                    breakdownData={breakdownData}
-                    t={t}
-                />
+                <motion.div variants={fadeUpBlur}>
+                    <AIRecommendations summaryData={summaryRawData} onPaymentSuccess={fetchTransactions} />
+                </motion.div>
 
                 {/* Transactions Section */}
-                <div className="mt-10 max-w-4xl mx-auto w-full">
+                <motion.div variants={fadeUpBlur} className="mt-6 w-full bg-[#09090B] border border-white/5 rounded-3xl p-6 lg:p-8 relative shadow-lg">
                     <div className="flex justify-between items-center mb-5 px-2">
                         <h2 className="text-xl font-bold font-sans text-white uppercase tracking-wide">{t('transactions')}</h2>
                         <button onClick={() => setActiveTab('wallet')} className="text-xs font-mono font-bold text-[#A1A1AA] hover:text-white transition uppercase tracking-widest">{t('view_all')}</button>
@@ -299,12 +328,12 @@ const Dashboard = () => {
                             </div>
                         ) : transactions.length === 0 ? (
                             <div className="p-8 text-center bg-[#121212] border border-[#222] rounded-[16px]">
-                                <p className="text-[#A1A1AA] font-mono text-sm">No transactions yet. Start building your portfolio!</p>
+                                <p className="text-[#A1A1AA] font-mono text-sm">No transactions found.</p>
                             </div>
                         ) : transactions.slice(0, 5).map((t) => (
                             <div key={t.id} onClick={() => handleEditClick(t, { stopPropagation: () => { } })} className="group flex justify-between items-center p-5 bg-[#121212] border border-[#222] rounded-[16px] hover:border-[#444] transition-all cursor-pointer relative overflow-hidden">
                                 <div className="flex items-center space-x-4 z-10">
-                                    <div className={`w-12 h-12 rounded-[8px] flex items-center justify-center text-xl border ${t.type === 'income' ? 'bg-[#10B981]/10 text-[#10B981] border-[#10B981]/20' : 'bg-[#EF4444]/10 text-[#EF4444] border-[#EF4444]/20'}`}>
+                                    <div className={`w-12 h-12 rounded-[12px] flex items-center justify-center text-xl border ${t.type === 'income' ? 'bg-white/10 text-white border-white/10 shadow-[0_0_15px_rgba(255,255,255,0.05)]' : 'bg-black text-zinc-400 border-[#333]'}`}>
                                         {getIcon(t.icon)}
                                     </div>
                                     <div>
@@ -341,42 +370,43 @@ const Dashboard = () => {
                             </div>
                         ))}
                     </div>
-                </div>
+                </motion.div>
 
                 {/* Value Ladder Component */}
-                <div className="mt-12 mb-20 md:mb-4 p-8 bg-transparent border border-[#333] rounded-[16px] text-white relative flex flex-col items-center justify-center text-center overflow-hidden banner-glow">
+                <motion.div variants={fadeUpBlur} className="mt-6 p-8 bg-transparent border border-[#333] rounded-3xl text-white relative flex flex-col items-center justify-center text-center overflow-hidden hover:border-white/20 transition-colors">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-brand-orange/5 blur-[80px] pointer-events-none"></div>
                     <div className="relative z-10 w-full max-w-lg">
                         <div className="flex items-center justify-center space-x-2 mb-4">
                             <div className="w-2 h-2 rounded-[2px] bg-white animate-pulse"></div>
-                            <span className="text-xs font-mono font-bold tracking-widest uppercase text-[#A1A1AA]">Developer Pro</span>
+                            <span className="text-xs font-mono font-bold tracking-widest uppercase text-[#A1A1AA]">{t('developer_pro')}</span>
                         </div>
-                        <h3 className="text-2xl font-bold font-sans tracking-tight mb-2 text-white">Automate your finances</h3>
+                        <h3 className="text-2xl font-bold font-sans tracking-tight mb-2 text-white">{t('automate_your_finances')}</h3>
                         <p className="text-sm font-mono text-[#A1A1AA] leading-relaxed mb-6">
-                            Connect your bank accounts directly. Save 14 hours every month.
+                            {t('connect_bank')}
                         </p>
-                        <button className="bg-white text-black px-8 py-4 rounded-[8px] font-sans font-black shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:bg-gray-200 transition-all active:scale-95 text-sm uppercase tracking-wider w-full sm:w-auto border border-white">
-                            Upgrade Now
+                        <button className="bg-white text-black px-8 py-3.5 rounded-[8px] font-sans font-bold shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:bg-zinc-200 transition-all active:scale-95 text-sm uppercase tracking-wider w-full sm:w-auto border border-white">
+                            {t('upgrade_now')}
                         </button>
                     </div>
-                </div>
-            </>
+                </motion.div>
+            </motion.div>
         );
     };
 
     const renderAnalyticsPage = () => (
         <div className="space-y-8">
-            <h2 className="text-2xl font-bold font-sans text-white uppercase tracking-wide">Detailed Analytics</h2>
+            <h2 className="text-2xl font-bold font-sans text-white uppercase tracking-wide">{t('detailed_analytics')}</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-[#121212] p-6 rounded-[16px] shadow-sm border border-[#222]">
-                    <h3 className="font-bold mb-4 font-mono text-white text-sm uppercase">Income vs Expense</h3>
+                    <h3 className="font-bold mb-4 font-mono text-white text-sm uppercase">{t('income_vs_expense')}</h3>
                     <div className="h-64">
                         <Bar data={trendData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }} />
                     </div>
                 </div>
 
                 <div className="bg-[#121212] p-6 rounded-[16px] shadow-sm border border-[#222]">
-                    <h3 className="font-bold mb-4 font-mono text-white text-sm uppercase">Expense Breakdown</h3>
+                    <h3 className="font-bold mb-4 font-mono text-white text-sm uppercase">{t('expense_breakdown')}</h3>
                     <div className="h-64 flex justify-center">
                         <Doughnut data={breakdownData} options={{ maintainAspectRatio: false, cutout: '60%', plugins: { legend: { position: 'right' } } }} />
                     </div>
@@ -384,7 +414,7 @@ const Dashboard = () => {
             </div>
 
             <div className="bg-[#121212] p-6 rounded-[16px] border border-[#222]">
-                <h3 className="font-bold mb-4 font-mono text-white text-sm uppercase">Top Spending Categories</h3>
+                <h3 className="font-bold mb-4 font-mono text-white text-sm uppercase">{t('top_spending_categories')}</h3>
                 {breakdownData.labels.map((label, i) => (
                     <div key={label} className="flex justify-between items-center py-3 border-b border-[#333] last:border-0">
                         <div className="flex items-center space-x-3">
@@ -404,7 +434,9 @@ const Dashboard = () => {
             <div className="bg-[#121212] border border-[#222] p-6 rounded-[16px] flex items-center space-x-6 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white rounded-full filter blur-[80px] opacity-5"></div>
                 <div className="relative">
-                    <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-24 h-24 rounded-[8px] border border-[#333] grayscale" />
+                    <div className="w-24 h-24 rounded-full bg-black border border-[#333] flex items-center justify-center font-bold text-4xl text-white uppercase font-sans">
+                        {(user?.name || "Abraham")[0]}
+                    </div>
                     {user?.fayda_id && (
                         <div className="absolute -bottom-2 right-0 bg-[#10B981] text-black text-[10px] font-bold px-2 py-0.5 rounded-[4px] border border-black flex items-center space-x-1 uppercase tracking-widest" title="Verified by National ID">
                             <span>Fayda</span>
@@ -476,20 +508,6 @@ const Dashboard = () => {
                             </form>
                         )}
                     </div>
-                    <div className="p-4 flex justify-between items-center hover:bg-[#222] transition cursor-pointer">
-                        <div className="flex items-center space-x-3 text-white">
-                            <FaBell className="text-[#A1A1AA]" />
-                            <span className="font-mono text-sm uppercase">Notifications</span>
-                        </div>
-                        <span className="text-[#A1A1AA] font-mono">›</span>
-                    </div>
-                    <div className="p-4 flex justify-between items-center hover:bg-[#222] transition cursor-pointer">
-                        <div className="flex items-center space-x-3 text-white">
-                            <FaCreditCard className="text-[#A1A1AA]" />
-                            <span className="font-mono text-sm uppercase">Payment Methods</span>
-                        </div>
-                        <span className="text-[#A1A1AA] font-mono">›</span>
-                    </div>
                 </div>
             </div>
 
@@ -512,40 +530,38 @@ const Dashboard = () => {
     );
 
     return (
-        <div className="min-h-screen bg-[#000000] font-sans flex flex-col md:flex-row overflow-hidden text-[#FFFFFF] selection:bg-white selection:text-black">
-            {/* Sidebar */}
-            <aside className="hidden md:flex flex-col w-64 bg-[#121212] border-r border-[#222] p-6 z-20">
-                <div className="flex items-center space-x-3 mb-10 pl-2">
-                    <span className="text-xl font-black font-sans tracking-tight text-white uppercase">SANTIM SENTRY</span>
+        <div className="min-h-screen bg-[#050505] font-sans flex flex-col md:flex-row overflow-hidden text-zinc-100 selection:bg-brand-purple selection:text-white">
+            {/* Sidebar (Desktop) */}
+            <aside className="hidden md:flex flex-col w-64 bg-[#09090B] border-r border-white/5 p-6 z-20">
+                <div className="flex items-center space-x-3 mb-12 pl-2 cursor-pointer" onClick={() => setActiveTab('home')}>
+                    <span className="text-2xl font-extrabold font-sans tracking-tight text-white uppercase" style={{ fontFamily: '"Outfit", sans-serif' }}>SANTIM</span>
                 </div>
-                <nav className="flex-1 space-y-2">
+
+                <div className="mb-4 px-2">
+                    <span className="text-xs font-bold text-zinc-500 uppercase tracking-widest font-mono">Main Menu</span>
+                </div>
+                <nav className="flex-1 space-y-1">
                     {['home', 'wallet', 'analytics', 'profile'].map((tab) => (
-                        <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-[8px] transition font-mono font-bold text-xs uppercase tracking-widest ${activeTab === tab ? 'bg-white text-black' : 'text-[#A1A1AA] hover:text-white hover:bg-[#222]'}`}>
+                        <button key={tab} onClick={() => setActiveTab(tab)} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all font-mono font-bold text-xs uppercase tracking-widest ${activeTab === tab ? 'bg-white/10 text-white' : 'text-zinc-400 hover:text-white hover:bg-white/5'}`}>
                             <span className="capitalize">{t(tab)}</span>
                         </button>
                     ))}
                 </nav>
                 <div className="mt-auto space-y-4">
-                    <div className="flex justify-center space-x-2">
-                        <button onClick={() => changeLanguage('en')} className={`px-3 py-1.5 flex items-center justify-center rounded-[4px] text-xs font-mono font-bold border ${i18n.language === 'en' ? 'bg-white text-black border-white' : 'text-[#A1A1AA] border-[#333] hover:text-white hover:border-white'}`}>EN</button>
-                        <button onClick={() => changeLanguage('am')} className={`px-3 py-1.5 flex items-center justify-center rounded-[4px] text-xs font-mono font-bold border ${i18n.language === 'am' ? 'bg-white text-black border-white' : 'text-[#A1A1AA] border-[#333] hover:text-white hover:border-white'}`}>AM</button>
-                    </div>
-                    <div className="flex items-center space-x-3 bg-black border border-[#222] p-3 rounded-[8px]">
+                    <div className="flex items-center space-x-3 bg-black border border-white/5 p-3 rounded-xl hover:border-white/10 transition-colors cursor-pointer" onClick={() => setActiveTab('profile')}>
                         <div className="relative">
-                            <img src="https://i.pravatar.cc/150?img=11" alt="Profile" className="w-10 h-10 rounded-[6px] grayscale border border-[#333]" />
+                            <div className="w-10 h-10 rounded-full bg-[#121212] flex items-center justify-center border border-white/10 font-sans font-bold text-white text-lg uppercase cursor-pointer">
+                                {(user?.name || "Abraham")[0]}
+                            </div>
                             {user?.fayda_id && (
-                                <div className="absolute -bottom-1 -right-1 bg-[#10B981] text-black text-[8px] p-0.5 rounded-[2px] border border-black" title="Verified by National ID">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-2 w-2" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
+                                <div className="absolute -bottom-1 -right-1 bg-[#10B981] text-black text-[8px] p-0.5 rounded-[2px]" title="Verified by National ID">
+                                    <FaCheckCircle className="w-2 h-2" />
                                 </div>
                             )}
                         </div>
-                        <div>
-                            <div className="flex items-center gap-1.5">
-                                <h4 className="text-xs font-sans font-bold text-white uppercase">{user?.name || "Abraham K."}</h4>
-                            </div>
-                            <button onClick={logout} className="text-[10px] font-mono tracking-widest text-[#A1A1AA] hover:text-white transition uppercase mt-0.5">Logout</button>
+                        <div className="overflow-hidden">
+                            <h4 className="text-xs font-sans font-bold text-white uppercase truncate">{user?.name || "Abraham K."}</h4>
+                            <p className="text-[10px] font-mono tracking-widest text-[#A1A1AA] uppercase mt-0.5 truncate">{user?.email || "Free Plan"}</p>
                         </div>
                     </div>
                 </div>
@@ -557,28 +573,57 @@ const Dashboard = () => {
             </div>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto relative p-4 md:p-10 pb-28 md:pb-10 bg-[#000000]">
-                <header className="flex justify-between items-center mb-6 md:mb-12">
-                    <div>
-                        <h1 className="text-xl font-bold font-sans text-white hidden md:block uppercase tracking-wide">
-                            {activeTab === 'home' ? t('dashboard') : activeTab === 'analytics' ? 'Analytics' : t('my_expenses')}
-                        </h1>
+            <main className="flex-1 overflow-y-auto relative p-4 md:p-8 lg:p-10 pb-28 md:pb-10 bg-[#000000]">
+                {/* Top Nav (Desktop) */}
+                <header className="hidden md:flex justify-between items-center mb-8 px-2">
+                    <div className="flex-1 max-w-md">
+                        {/* Search Removed */}
                     </div>
                     <div className="flex items-center space-x-4">
-                        <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="hidden md:flex items-center space-x-2 bg-white text-black px-5 py-2.5 rounded-[8px] hover:bg-gray-200 transition font-sans font-bold uppercase tracking-wider text-sm border border-white">
-                            <span>+ {t('add_transaction')}</span>
+                        <div className="flex justify-center space-x-2 mr-4">
+                            <button onClick={() => changeLanguage('en')} className={`px-2.5 py-1 flex items-center justify-center rounded-[6px] text-[10px] font-mono font-bold border ${i18n.language === 'en' ? 'bg-white text-black border-white' : 'text-[#A1A1AA] border-[#333] hover:text-white hover:border-white'}`}>EN</button>
+                            <button onClick={() => changeLanguage('am')} className={`px-2.5 py-1 flex items-center justify-center rounded-[6px] text-[10px] font-mono font-bold border ${i18n.language === 'am' ? 'bg-white text-black border-white' : 'text-[#A1A1AA] border-[#333] hover:text-white hover:border-white'}`}>AM</button>
+                        </div>
+                        <button onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }} className="flex items-center space-x-2 bg-white text-black px-4 py-2.5 rounded-xl hover:bg-zinc-200 transition font-sans font-bold uppercase tracking-wider text-xs border border-white">
+                            <FaPlus className="text-xs" /> <span>{t('add_transaction')}</span>
                         </button>
                         <Notifications />
                     </div>
                 </header>
 
-                <div className="w-full">
+                <div className="w-full max-w-7xl mx-auto">
+                    {/* Mobile Header */}
+                    <header className="flex flex-col md:hidden mb-6 gap-4">
+                        <div className="flex justify-between items-center w-full">
+                            <h1 className="text-2xl font-black font-sans text-white uppercase tracking-tight" style={{ fontFamily: '"Outfit", sans-serif' }}>
+                                {activeTab === 'home' ? t('overview') : activeTab === 'analytics' ? t('analytics') : activeTab === 'wallet' ? t('my_wallet') : t('profile_settings')}
+                            </h1>
+                            <div className="flex items-center space-x-3">
+                                <div className="flex space-x-1.5">
+                                    <button onClick={() => changeLanguage('en')} className={`px-2 py-1 flex items-center justify-center rounded-[4px] text-[10px] font-mono font-bold border ${i18n.language === 'en' ? 'bg-white text-black border-white' : 'text-[#A1A1AA] border-[#333] hover:text-white hover:border-white'}`}>EN</button>
+                                    <button onClick={() => changeLanguage('am')} className={`px-2 py-1 flex items-center justify-center rounded-[4px] text-[10px] font-mono font-bold border ${i18n.language === 'am' ? 'bg-white text-black border-white' : 'text-[#A1A1AA] border-[#333] hover:text-white hover:border-white'}`}>AM</button>
+                                </div>
+                                <Notifications />
+                            </div>
+                        </div>
+                        {/* Mobile Search Removed */}
+                    </header>
+
                     {activeTab === 'home' && renderHome()}
                     {activeTab === 'analytics' && renderAnalyticsPage()}
                     {activeTab === 'wallet' && (
-                        <WalletView transactions={transactions} onRefresh={fetchTransactions} />
+                        <div className="animate-fadeIn">
+                            <WalletView
+                                transactions={transactions}
+                                onRefresh={fetchTransactions}
+                            />
+                        </div>
                     )}
-                    {activeTab === 'profile' && renderProfile()}
+                    {activeTab === 'profile' && (
+                        <div className="animate-fadeIn">
+                            {renderProfile()}
+                        </div>
+                    )}
                 </div>
             </main>
 

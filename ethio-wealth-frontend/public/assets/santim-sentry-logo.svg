@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 80" fill="none" role="img" aria-label="Santim Sentry Logo">
+  <!-- {S} glyph mark -->
+  <!-- Left curly brace -->
+  <g fill="white">
+    <path d="M12 12 C6 12 4 15 4 20 L4 30 C4 35 2 37 2 40 C2 43 4 45 4 50 L4 60 C4 65 6 68 12 68 L16 68 L16 63 C11 63 10 61 10 57 L10 47 C10 42 8 40 8 40 C8 40 10 38 10 33 L10 23 C10 19 11 17 16 17 L16 12 Z"/>
+    <!-- Right curly brace -->
+    <path d="M68 12 L68 17 C73 17 74 19 74 23 L74 33 C74 38 76 40 76 40 C76 40 74 42 74 47 L74 57 C74 61 73 63 68 63 L68 68 L72 68 C78 68 80 65 80 60 L80 50 C80 45 82 43 82 40 C82 37 80 35 80 30 L80 20 C80 15 78 12 72 12 Z"/>
+    <!-- S letterform -->
+    <path d="M40 22 C31 22 27 26 27 32 C27 37 30 40 36 41.5 L44 43.5 C48 44.5 50 46 50 49 C50 52.5 47 55 41 55 C35 55 32 52.5 32 49 L26 49 C26 55.5 31 60 41 60 C51 60 56 55.5 56 49 C56 43.5 53 40 47 38.5 L39 36.5 C35 35.5 33 34 33 31 C33 27.5 36 25 41 25 C46 25 49 27.5 49 31 L55 31 C55 26 50 22 40 22 Z"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="95" y="36" font-family="'Outfit', 'Inter', sans-serif" font-size="14" font-weight="800" fill="white" letter-spacing="1.5">SANTIM</text>
+  <text x="95" y="54" font-family="'Outfit', 'Inter', sans-serif" font-size="14" font-weight="400" fill="white" letter-spacing="2">SENTRY</text>
+</svg>

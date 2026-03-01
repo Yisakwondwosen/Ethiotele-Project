@@ -9,6 +9,7 @@ const transactionSchema = z.object({
     description: z.string().optional(),
     categoryId: z.number().int().positive(),
     isTelebirr: z.boolean().optional(),
+    date: z.string().optional(),
 });
 
 const getTransactions = async (req, res) => {
@@ -44,12 +45,14 @@ const createTransaction = async (req, res) => {
         const validatedData = transactionSchema.parse(req.body);
         const userId = req.user.userId;
 
-        const { amount, description, categoryId, isTelebirr } = validatedData;
+        const { amount, description, categoryId, isTelebirr, date } = validatedData;
+
+        const transactionDate = date ? new Date(date) : new Date();
 
         const result = await pool.query(
-            `INSERT INTO transactions (user_id, category_id, amount, description, is_telebirr_sync)
-             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-            [userId, categoryId, amount, description, isTelebirr || false]
+            `INSERT INTO transactions (user_id, category_id, amount, description, is_telebirr_sync, transaction_date)
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [userId, categoryId, amount, description, isTelebirr || false, transactionDate]
         );
 
         // We could join here to return full category info, but for now just return the transaction
@@ -72,14 +75,15 @@ const updateTransaction = async (req, res) => {
         const { id } = req.params;
         const validatedData = transactionSchema.parse(req.body);
         const userId = req.user.userId;
-        const { amount, description, categoryId, isTelebirr } = validatedData;
+        const { amount, description, categoryId, isTelebirr, date } = validatedData;
+        const transactionDate = date ? new Date(date) : new Date();
 
         const result = await pool.query(
             `UPDATE transactions 
-             SET amount = $1, description = $2, category_id = $3, is_telebirr_sync = $4
-             WHERE id = $5 AND user_id = $6
+             SET amount = $1, description = $2, category_id = $3, is_telebirr_sync = $4, transaction_date = $5
+             WHERE id = $6 AND user_id = $7
              RETURNING *`,
-            [amount, description, categoryId, isTelebirr || false, id, userId]
+            [amount, description, categoryId, isTelebirr || false, transactionDate, id, userId]
         );
 
         if (result.rows.length === 0) {

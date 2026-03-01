@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import { registerUser } from '../services/api';
+import SantimSentryLogo from '../components/SantimSentryLogo';
 
 const Signup = () => {
     const [name, setName] = useState('');
@@ -31,9 +32,8 @@ const Signup = () => {
         setGlobalError('');
         if (!validate()) return;
 
-        setLoading(true);
         try {
-            await axios.post('https://yisehak.duckdns.org/api/auth/register', { name, email, password });
+            await registerUser({ name, email, password });
             localStorage.setItem('lastEmail', email);
             navigate('/login');
         } catch (err) {
@@ -54,8 +54,10 @@ const Signup = () => {
             >
                 {/* Header */}
                 <div className="text-center mb-10">
-                    <Link to="/" className="inline-block hover:opacity-80 transition-opacity">
-                        <div className="w-10 h-10 bg-white text-black rounded-xl flex items-center justify-center mx-auto mb-6 text-xl font-bold tracking-tighter" style={{ fontFamily: '"Outfit", sans-serif' }}>SS</div>
+                    <Link to="/" className="inline-flex flex-col items-center hover:opacity-80 transition-opacity">
+                        <div className="mb-5">
+                            <SantimSentryLogo variant="icon" height={52} color="white" />
+                        </div>
                     </Link>
                     <h1 className="text-[28px] font-semibold tracking-tight text-white mb-2 leading-tight">Create your account</h1>
                     <p className="text-[#86868B] text-[15px]">Setup your Santim vault below.</p>

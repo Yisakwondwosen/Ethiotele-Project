@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaWallet, FaPlus, FaHistory, FaMobileAlt } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import { topUpTelebirr } from '../services/api';
 
 const WalletView = ({ transactions, onRefresh }) => {
     const { user } = useAuth();
@@ -10,8 +11,11 @@ const WalletView = ({ transactions, onRefresh }) => {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null); // 'success', 'error'
 
-    // Calculate Balance
-    const balance = transactions.reduce((acc, curr) =>
+    // Filter for Telebirr-only transactions
+    const telebirrTransactions = transactions.filter(t => t.is_telebirr_sync);
+
+    // Calculate Balance strictly from Telebirr Wallet
+    const balance = telebirrTransactions.reduce((acc, curr) =>
         curr.type === 'income' ? acc + Number(curr.amount) : acc - Number(curr.amount), 0
     );
 
@@ -21,19 +25,9 @@ const WalletView = ({ transactions, onRefresh }) => {
         setStatus(null);
 
         try {
-            const token = localStorage.getItem('token');
-            const res = await fetch('https://yisehak.duckdns.org/api/telebirr/pay', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ amount, phoneNumber: phone })
-            });
+            const data = await topUpTelebirr(amount, phone);
 
-            const data = await res.json();
-
-            if (res.ok) {
+            if (data) {
                 setStatus('success');
                 onRefresh(); // Refresh transactions
                 setTimeout(() => {
@@ -70,16 +64,16 @@ const WalletView = ({ transactions, onRefresh }) => {
                     </div>
                 </div>
 
-                <div className="relative z-10 flex space-x-4">
+                <div className="relative z-10 flex space-x-3">
                     <button
                         onClick={() => setIsTopUpOpen(true)}
-                        className="flex-1 flex justify-center items-center space-x-2 bg-brand-orange text-white px-6 py-3.5 rounded-xl font-bold shadow-lg shadow-orange-500/30 hover:bg-orange-600 transition-colors"
+                        className="flex-1 flex justify-center items-center space-x-2 bg-white text-black px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-white/5 hover:bg-zinc-200 transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
-                        <FaPlus />
+                        <FaPlus className="text-black" />
                         <span>Add Money</span>
                     </button>
-                    <button className="flex-1 flex justify-center items-center space-x-2 bg-white/10 text-white px-6 py-3.5 rounded-xl font-bold hover:bg-white/20 transition backdrop-blur-sm border border-white/5">
-                        <FaHistory />
+                    <button className="flex-1 flex justify-center items-center space-x-2 bg-black/40 text-white px-6 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-black/60 transition-all backdrop-blur-md border border-white/10 hover:border-white/20 hover:scale-[1.02] active:scale-[0.98]">
+                        <FaHistory className="text-white" />
                         <span>History</span>
                     </button>
                 </div>
@@ -89,11 +83,11 @@ const WalletView = ({ transactions, onRefresh }) => {
             <div>
                 <h3 className="text-xl font-bold text-white mb-6 px-1">Recent Activity</h3>
                 <div className="space-y-3">
-                    {transactions.slice(0, 5).map(t => (
+                    {telebirrTransactions.slice(0, 5).map(t => (
                         <div key={t.id} className="bg-[#09090B] p-4 rounded-3xl border border-white/10 flex justify-between items-center transition-all hover:bg-white/5">
                             <div className="flex items-center space-x-4">
-                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg ${t.is_telebirr ? 'bg-blue-500/10 text-blue-500 bg-opacity-20' : 'bg-white/5 text-zinc-400'}`}>
-                                    {t.is_telebirr ? <FaMobileAlt /> : <FaHistory />}
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg ${t.is_telebirr_sync ? 'bg-blue-500/10 text-blue-500 bg-opacity-20' : 'bg-white/5 text-zinc-400'}`}>
+                                    {t.is_telebirr_sync ? <FaMobileAlt /> : <FaHistory />}
                                 </div>
                                 <div>
                                     <p className="font-bold text-white text-base">{t.description}</p>
@@ -151,9 +145,9 @@ const WalletView = ({ transactions, onRefresh }) => {
                                         <button
                                             type="submit"
                                             disabled={loading}
-                                            className="flex-1 py-3.5 px-4 bg-brand-orange text-white rounded-xl font-bold shadow-[0_0_20px_rgba(255,107,0,0.2)] hover:bg-orange-600 hover:scale-[1.02] transition-all flex justify-center items-center disabled:opacity-50"
+                                            className="flex-1 py-3.5 px-4 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:bg-zinc-200 hover:scale-[1.02] active:scale-[0.98] transition-all flex justify-center items-center disabled:opacity-50"
                                         >
-                                            {loading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : 'Pay Now'}
+                                            {loading ? <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></div> : 'Pay Now'}
                                         </button>
                                     </div>
                                 </form>

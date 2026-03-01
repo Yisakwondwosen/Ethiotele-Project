@@ -25,6 +25,14 @@ const initiatePayment = async (req, res) => {
             await pool.query('UPDATE "user" SET wallet_balance = COALESCE(wallet_balance, 0) + $1 WHERE id = $2', [amount, userId]);
         }
 
+        // Add a formal transaction record so it appears in the UI ledger
+        // category_id 2 is 'Business' which maps to 'income'
+        await pool.query(
+            `INSERT INTO transactions (user_id, category_id, amount, description, is_telebirr_sync) 
+             VALUES ($1, 2, $2, 'Telebirr Wallet Top-up', TRUE)`,
+            [userId, amount]
+        );
+
         // 5. Mock Success Response
         await createNotification(userId, `Telebirr Top-Up of ${amount} ETB successful.`, 'success');
 
@@ -66,6 +74,14 @@ const payForAi = async (req, res) => {
 
         // Deduct
         await pool.query('UPDATE "user" SET wallet_balance = wallet_balance - $1 WHERE id = $2', [cost, userId]);
+
+        // Add a formal transaction record for the expense so it subtracts from the ledger
+        // category_id 6 is 'Bills' which maps to 'expense'
+        await pool.query(
+            `INSERT INTO transactions (user_id, category_id, amount, description, is_telebirr_sync) 
+             VALUES ($1, 6, $2, 'AI Insights Pro Unlock', TRUE)`,
+            [userId, cost]
+        );
 
         await createNotification(userId, `50 ETB deducted for AI Insights Pro Unlock.`, 'info');
 

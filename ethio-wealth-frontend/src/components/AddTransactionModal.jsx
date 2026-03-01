@@ -7,6 +7,7 @@ const AddTransactionModal = ({ isOpen, onClose, onAdd, initialData = null }) => 
     const [description, setDescription] = useState('');
     const [type, setType] = useState('expense'); // 'income' or 'expense'
     const [categoryId, setCategoryId] = useState('');
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -19,12 +20,17 @@ const AddTransactionModal = ({ isOpen, onClose, onAdd, initialData = null }) => 
             // We need to wait for categories to load to set ID, or set it if known
             // initialData should have categoryId if we pass it correctly
             if (initialData.categoryId) setCategoryId(initialData.categoryId);
+            if (initialData.transaction_date || initialData.date) {
+                const parsedDate = new Date(initialData.transaction_date || initialData.date);
+                if (!isNaN(parsedDate)) setDate(parsedDate.toISOString().split('T')[0]);
+            }
         } else {
             // Reset
             setAmount('');
             setDescription('');
             setType('expense');
             setCategoryId('');
+            setDate(new Date().toISOString().split('T')[0]);
         }
     }, [initialData, isOpen]);
 
@@ -68,7 +74,7 @@ const AddTransactionModal = ({ isOpen, onClose, onAdd, initialData = null }) => 
             type,
             category: selectedCat ? selectedCat.name : 'General',
             categoryId: parseInt(categoryId),
-            date: initialData ? initialData.date : new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }),
+            date: date,
             icon: type === 'income' ? <FaMoneyBillWave /> : <FaCreditCard />,
         });
 
@@ -145,6 +151,16 @@ const AddTransactionModal = ({ isOpen, onClose, onAdd, initialData = null }) => 
                                 ))
                             }
                         </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-semibold text-zinc-400 mb-1.5 ml-1">Date</label>
+                        <input
+                            type="date"
+                            value={date}
+                            onChange={(e) => setDate(e.target.value)}
+                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white font-medium focus:outline-none focus:border-brand-purple focus:ring-1 focus:ring-brand-purple transition-all placeholder-zinc-500"
+                        />
                     </div>
 
                     <button type="submit" className="w-full bg-white text-black font-bold py-3.5 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:bg-zinc-200 hover:scale-[1.02] transition-all duration-200 mt-2">

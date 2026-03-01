@@ -1,6 +1,7 @@
 import React from 'react';
 import { FaTwitter, FaLinkedin, FaTelegram, FaGithub } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import SantimSentryLogo from './SantimSentryLogo';
 
 const Footer = () => {
     return (
@@ -9,8 +10,8 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     {/* Brand Column */}
                     <div className="col-span-1 md:col-span-1">
-                        <div className="flex items-center space-x-2 mb-6">
-                            <span className="text-2xl font-extrabold tracking-tight text-white" style={{ fontFamily: '"Outfit", sans-serif' }}>SANTIM SENTRY</span>
+                        <div className="flex items-center mb-6">
+                            <SantimSentryLogo variant="full" height={36} color="white" />
                         </div>
                         <p className="text-sm leading-relaxed mb-6">
                             Empowering Ethiopians to take control of their financial future. Verified security, smart analytics, and effortless tracking.
@@ -69,7 +70,7 @@ const Footer = () => {
 
                 <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
                     <p className="text-xs text-zinc-500 mb-4 md:mb-0">
-                        &copy; 2026 Santim Sentry. Made with ☕ in Addis Ababa using <span className="text-brand-orange font-bold">Fayda ID</span>.
+                        &copy; 2026 Santim Sentry.
                     </p>
                     <div className="flex items-center space-x-6">
                         <span className="flex items-center space-x-2 text-xs text-zinc-400 bg-zinc-900 px-3 py-1.5 rounded-full border border-white/10">

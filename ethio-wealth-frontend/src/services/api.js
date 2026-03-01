@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://yisehak.duckdns.org/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
     baseURL: API_URL,
@@ -13,7 +13,7 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     const guestId = localStorage.getItem('guestId');
-    if (token) {
+    if (token && token !== 'undefined' && token !== 'null') {
         config.headers.Authorization = `Bearer ${token}`;
     } else if (guestId) {
         // Fallback for MVP No-Auth requirement
@@ -92,6 +92,40 @@ export const markAllNotificationsRead = async () => {
 
 export const payForAiInsights = async () => {
     const response = await api.post('/telebirr/ai/pay');
+    return response.data;
+};
+
+export const topUpTelebirr = async (amount, phoneNumber) => {
+    const response = await api.post('/telebirr/pay', { amount, phoneNumber });
+    return response.data;
+};
+
+export const generateAiInsights = async (prompt, apiKey) => {
+    const response = await axios.post(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+        {
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+                temperature: 0.2,
+            }
+        },
+        { headers: { 'Content-Type': 'application/json' } }
+    );
+    return response.data;
+};
+
+export const checkAuth = async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
+};
+
+export const registerUser = async (userData) => {
+    const response = await api.post('/auth/register', userData);
+    return response.data;
+};
+
+export const guestLogin = async (username) => {
+    const response = await api.post('/profile', { username });
     return response.data;
 };
 

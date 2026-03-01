@@ -14,7 +14,8 @@ export default {
                 'ethio-green': '#009660', // Keeping strictly for logo/branding if needed
             },
             fontFamily: {
-                sans: ['Inter', 'sans-serif'], // Assuming Inter or similar rounded sans
+                sans: ['"Inter"', 'system-ui', 'sans-serif'],
+                mono: ['"Geist Mono"', 'ui-monospace', 'monospace'],
             },
             boxShadow: {
                 'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',

@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { checkAuth as apiCheckAuth, login as apiLogin, guestLogin as apiGuestLogin } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -23,21 +24,12 @@ export const AuthProvider = ({ children }) => {
             const guestId = localStorage.getItem('guestId');
             const guestUser = localStorage.getItem('guestUser');
 
-            if (token) {
+            if (token && token !== 'undefined' && token !== 'null') {
                 try {
                     // verify token and get user data
-                    const response = await fetch('https://yisehak.duckdns.org/api/auth/me', {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    if (response.ok) {
-                        const userData = await response.json();
-                        setUser(userData);
-                        localStorage.setItem('user', JSON.stringify(userData));
-                    } else {
-                        // Token invalid/expired
-                        logout();
-                    }
+                    const userData = await apiCheckAuth();
+                    setUser(userData);
+                    localStorage.setItem('user', JSON.stringify(userData));
                 } catch (err) {
                     console.error("Auth check failed", err);
                     logout();
@@ -53,14 +45,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await fetch('https://yisehak.duckdns.org/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
-
+            const data = await apiLogin(email, password);
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             setUser(data.user);
@@ -72,14 +57,9 @@ export const AuthProvider = ({ children }) => {
 
     const guestLogin = async (username) => {
         try {
-            const response = await fetch('https://yisehak.duckdns.org/api/profile', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username }),
-            });
-            const data = await response.json();
-            if (!response.ok) throw new Error(data.error);
+            const data = await apiGuestLogin(username);
 
+            if (data.token) localStorage.setItem('token', data.token);
             localStorage.setItem('guestId', data.id);
             localStorage.setItem('guestUser', JSON.stringify(data));
             setUser(data);

@@ -1,7 +1,7 @@
 .git
 node_modules
-.env
-.env.*
+# Allow .env during docker build for Vite static injection!
+# .env Include
 *.log
 dist
 build

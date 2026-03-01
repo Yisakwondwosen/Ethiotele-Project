@@ -1,12 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://cdn.jsdelivr.net/npm/geist@1.0.3/dist/fonts/geist-sans/style.css');
+@import url('https://cdn.jsdelivr.net/npm/geist@1.0.3/dist/fonts/geist-mono/style.css');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #F4F6F8;
+  font-family: 'Inter', system-ui, sans-serif;
+  background-color: #050505;
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
@@ -20,4 +23,42 @@ body {
   /* IE and Edge */
   scrollbar-width: none;
   /* Firefox */
+}
+
+@layer utilities {
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-150%) skewX(-15deg);
+    }
+    50% {
+      transform: translateX(150%) skewX(-15deg);
+    }
+    100% {
+      transform: translateX(150%) skewX(-15deg);
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 1.5s infinite linear;
+  }
+
+  @keyframes aura {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .text-aura {
+    background-size: 200% 200%;
+    animation: aura 3s ease infinite;
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
 }

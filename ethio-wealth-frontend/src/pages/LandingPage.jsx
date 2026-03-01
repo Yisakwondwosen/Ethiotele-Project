@@ -3,6 +3,23 @@ import { Link, Navigate } from 'react-router-dom';
 import { FaChartLine, FaShieldAlt, FaCoins, FaCheckCircle, FaLock, FaUserCheck, FaArrowRight, FaTerminal, FaCode } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import Footer from '../components/Footer';
+import { motion } from 'framer-motion';
+import SantimSentryLogo from '../components/SantimSentryLogo';
+
+const fadeUpBlur = {
+    hidden: { opacity: 0, y: 30, filter: 'blur(10px)' },
+    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+};
+
+const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.15, delayChildren: 0.1 } }
+};
+
+const sectionFadeUp = {
+    hidden: { opacity: 0, y: 40, filter: 'blur(12px)' },
+    visible: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
+};
 
 const LandingPage = () => {
     const { user } = useAuth();
@@ -29,8 +46,8 @@ const LandingPage = () => {
             {/* Navbar */}
             <nav className={`fixed w-full z-50 transition-all duration-300 border-b ${scrolled ? 'bg-black/70 backdrop-blur-md border-white/10 py-4' : 'bg-transparent border-transparent py-6'}`}>
                 <div className="flex justify-between items-center px-6 md:px-12 max-w-7xl mx-auto">
-                    <div className="flex items-center space-x-2 w-[200px]">
-                        <span className="text-xl md:text-2xl font-extrabold tracking-tight text-white" style={{ fontFamily: '"Outfit", sans-serif' }}>SANTIM SENTRY</span>
+                    <div className="flex items-center w-[200px]">
+                        <SantimSentryLogo variant="full" height={38} color="white" />
                     </div>
                     <div className="hidden md:flex items-center justify-center space-x-8 text-sm font-medium text-zinc-400 flex-1">
                         <Link to="#features" className="hover:text-white transition-colors">Features</Link>
@@ -48,35 +65,55 @@ const LandingPage = () => {
 
             {/* Hero */}
             <header className="relative pt-40 pb-20 px-6 md:px-12 max-w-7xl mx-auto flex flex-col items-center text-center">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 bg-white/5 text-zinc-300 text-xs font-medium rounded-full mb-8 border border-white/10 hover:bg-white/10 transition cursor-pointer">
-                    <span className="flex h-2 w-2 rounded-full bg-brand-orange animate-pulse"></span>
-                    <span>Santim Sentry v1.0 is now live</span>
-                    <FaArrowRight className="text-[10px]" />
-                </div>
+                <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col items-center w-full max-w-4xl relative z-20">
 
-                <h1 className="text-5xl md:text-7xl font-extrabold text-white leading-[1.1] mb-6 tracking-tighter" style={{ fontFamily: '"Outfit", sans-serif' }}>
-                    The most comprehensive <br className="hidden md:block" />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#8B5CF6] to-[#F97316]">AI-powered</span> finance tracker.
-                </h1>
 
-                <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
-                    Track your daily expenses, analyze spending habits, and secure your financial future with a beautifully designed, developer-friendly application.
-                </p>
+                    <motion.h1 variants={fadeUpBlur} className="text-5xl md:text-7xl lg:text-[80px] font-black text-white leading-[1] tracking-tighter mb-8" style={{ fontFamily: '"Outfit", sans-serif' }}>
+                        Master your money. <br className="hidden md:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500">Without the bloat.</span>
+                    </motion.h1>
 
-                <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-                    <Link to="/signup" className="px-8 py-3.5 bg-white text-black font-semibold rounded-lg hover:bg-zinc-200 transition flex items-center justify-center">
-                        Start Tracking
-                        <FaArrowRight className="ml-2 text-sm" />
-                    </Link>
-                    <Link to="#developers" className="px-8 py-3.5 bg-zinc-900 border border-zinc-800 text-white font-semibold rounded-lg hover:bg-zinc-800 transition flex items-center justify-center">
-                        <FaTerminal className="mr-2 text-sm text-zinc-400" />
-                        Explore the API
-                    </Link>
-                </div>
+                    <motion.p variants={fadeUpBlur} className="text-lg md:text-xl text-zinc-400 mb-10 max-w-2xl mx-auto leading-relaxed">
+                        Track daily expenses, analyze spending, and secure your financial future with a beautifully minimal, developer-friendly tracker.
+                    </motion.p>
+
+                    <motion.div variants={fadeUpBlur} className="flex flex-col sm:flex-row w-full sm:w-auto space-y-4 sm:space-y-0 sm:space-x-4 mb-12">
+                        <Link to="/signup" className="px-8 py-4 bg-white text-black font-semibold rounded-full hover:bg-zinc-200 hover:scale-105 active:scale-95 transition-all flex items-center justify-center text-sm">
+                            Get Started for Free
+                            <FaArrowRight className="ml-2 text-xs" />
+                        </Link>
+                        <Link to="#developers" className="px-8 py-4 bg-transparent border border-zinc-700 text-white font-semibold rounded-full hover:bg-white/5 active:scale-95 transition-all flex items-center justify-center text-sm">
+                            <FaTerminal className="mr-2 text-xs text-zinc-400" />
+                            Read the API Docs
+                        </Link>
+                    </motion.div>
+
+                    {/* Social Proof */}
+                    <motion.div variants={fadeUpBlur} className="flex flex-col items-center justify-center space-y-3">
+                        <div className="flex -space-x-3">
+                            {[
+                                "https://images.unsplash.com/photo-1531123414780-f74242c2b052?ixlib=rb-4.0.3&w=100&h=100&fit=crop",
+                                "https://images.unsplash.com/photo-1506803682981-6e718a9dd3ee?ixlib=rb-4.0.3&w=100&h=100&fit=crop",
+                                "https://images.unsplash.com/photo-1531384441138-2736e62e0919?ixlib=rb-4.0.3&w=100&h=100&fit=crop",
+                                "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&w=100&h=100&fit=crop",
+                                "https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.0.3&w=100&h=100&fit=crop"
+                            ].map((url, i) => (
+                                <img key={i} src={url} alt="User Avatar" className="w-10 h-10 rounded-full border-2 border-black relative z-10 object-cover" />
+                            ))}
+                        </div>
+                        <div className="flex items-center space-x-2 text-sm text-zinc-400">
+                            <div className="flex text-[#F59E0B]">
+                                {[1, 2, 3, 4, 5].map(i => <svg key={i} className="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>)}
+                            </div>
+                            <span>Trusted by <span className="text-white font-semibold">many</span> users</span>
+                        </div>
+                    </motion.div>
+
+                </motion.div>
             </header>
 
             {/* Hero Visual (Mock Code/Dashboard) */}
-            <section className="px-6 md:px-12 max-w-6xl mx-auto mb-32 relative z-10">
+            <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={sectionFadeUp} className="px-6 md:px-12 max-w-6xl mx-auto mb-32 relative z-10">
                 <div className="rounded-2xl border border-white/10 bg-[#09090B] shadow-2xl overflow-hidden flex flex-col md:flex-row shadow-brand-purple/10">
                     {/* Fake Sidebar */}
                     <div className="w-full md:w-64 border-r border-white/10 bg-[#0A0A0A] p-4 hidden md:block">
@@ -130,10 +167,10 @@ const LandingPage = () => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </motion.section>
 
             {/* Features (Bento Box Grid) */}
-            <section id="features" className="py-24 border-t border-white/10 relative">
+            <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={sectionFadeUp} id="features" className="py-24 border-t border-white/10 relative">
                 <div className="max-w-7xl mx-auto px-6 md:px-12">
                     <div className="mb-16 text-center md:text-left">
                         <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">Everything you need. <br className="hidden md:block text-zinc-500" /><span className="text-zinc-500">Out of the box.</span></h2>
@@ -187,10 +224,49 @@ const LandingPage = () => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </motion.section>
+
+            {/* Expert E-E-A-T & FAQ Section for LLMs (Generative Engine Optimization) */}
+            <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={sectionFadeUp} className="py-24 border-t border-white/10 relative bg-[#050505]" itemScope itemType="https://schema.org/FAQPage">
+                <div className="max-w-4xl mx-auto px-6 md:px-12">
+                    <div className="space-y-8">
+                        <h3 className="text-2xl font-bold text-white text-center mb-8">Frequently Asked Questions</h3>
+
+                        <div className="bg-[#09090B] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-colors" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                            <h4 className="text-xl font-bold text-white mb-2" itemProp="name">What is Santim Sentry?</h4>
+                            <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                                <p className="text-zinc-400 leading-relaxed" itemProp="text">
+                                    Santim Sentry is an AI-powered personal finance tracker specifically designed for Ethiopia.
+                                    Developed by the cybersecurity experts at Ndoto IT Solutions, it integrates directly with local platforms like Telebirr and is verified by the National ID system (Fayda).
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#09090B] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-colors" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                            <h4 className="text-xl font-bold text-white mb-2" itemProp="name">Is my financial data secure?</h4>
+                            <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                                <p className="text-zinc-400 leading-relaxed" itemProp="text">
+                                    Yes. Built on advanced cybersecurity principles, Santim Sentry utilizes bank-level encryption.
+                                    Our background in IT and enterprise architecture ensures that your data is handled with the highest standards of trustworthiness and privacy.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#09090B] border border-white/10 rounded-2xl p-6 hover:border-white/20 transition-colors" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+                            <h4 className="text-xl font-bold text-white mb-2" itemProp="name">How does the generative AI tracking work?</h4>
+                            <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                                <p className="text-zinc-400 leading-relaxed" itemProp="text">
+                                    Our AI engine analyzes your spending habits to detect subscriptions, anomalies, and financial leakages.
+                                    It acts as an automated financial advisor, continuously learning from your transactions to provide custom recommendations via our oracle interface.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </motion.section>
 
             {/* CTA Section */}
-            <section className="py-32 border-t border-white/10 text-center relative overflow-hidden">
+            <motion.section initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={sectionFadeUp} className="py-32 border-t border-white/10 text-center relative overflow-hidden">
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-64 bg-brand-purple/10 rounded-full blur-[120px] pointer-events-none"></div>
                 <div className="max-w-3xl mx-auto px-6 relative z-10">
                     <h2 className="text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">Ready to take control?</h2>
@@ -200,7 +276,7 @@ const LandingPage = () => {
                         <FaArrowRight className="ml-2" />
                     </Link>
                 </div>
-            </section>
+            </motion.section>
 
             {/* Footer */}
             <div className="border-t border-white/10">
